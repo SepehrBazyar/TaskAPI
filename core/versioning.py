@@ -35,26 +35,26 @@ class VersionFastAPI:
         else:
             self.app = FastAPI(docs_url=None, redoc_url=None, **__kwargs)
 
-        def __call__(
-            self,
-            middlewares: Dict[str, Callable[[Request, Coroutine], Response]] = {
-                "http": catch_exceptions,
-            },
-        ) -> FastAPI:
-            """Callable FastAPI Application to Set Custom Middlewares Get Arguments"""
+    def __call__(
+        self,
+        middlewares: Dict[str, Callable[[Request, Coroutine], Response]] = {
+            "http": catch_exceptions,
+        },
+    ) -> FastAPI:
+        """Callable FastAPI Application to Set Custom Middlewares Get Arguments"""
 
-            for type, middleware in middlewares.items():
-                self.app.middleware(type)(middleware)
+        for type, middleware in middlewares.items():
+            self.app.middleware(type)(middleware)
 
-            self.app.add_middleware(
-                CORSMiddleware,
-                allow_origins=CommaSeparatedStrings(settings.ALLOWED_HOSTS),
-                allow_credentials=True,
-                allow_methods=["*"],
-                allow_headers=["*"],
-            )
+        self.app.add_middleware(
+            CORSMiddleware,
+            allow_origins=CommaSeparatedStrings(settings.ALLOWED_HOSTS),
+            allow_credentials=True,
+            allow_methods=["*"],
+            allow_headers=["*"],
+        )
 
-            return self.app
+        return self.app
 
     @property
     def version(self) -> str:
