@@ -1,11 +1,12 @@
+from orm import ModelRegistry
 from databases import Database
-from sqlalchemy import MetaData
 from uvicorn.config import logger
 from core import settings
 
 
-metadata = MetaData()
 database = Database(settings.POSTGRESQL_URL)
+models = ModelRegistry(database=database)
+
 
 async def connect_to_postgresql():
     """Startup Event Handler for Connect to PostgreSQL Database"""
