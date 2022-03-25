@@ -34,6 +34,7 @@ pycparser==2.21
 pydantic==1.9.0
 python-dotenv==0.19.2
 python-jose==3.3.0
+python-magic==0.4.25
 python-multipart==0.0.5
 PyYAML==5.4.1
 requests==2.27.1

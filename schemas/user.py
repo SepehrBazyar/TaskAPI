@@ -1,4 +1,7 @@
-from pydantic import Field, EmailStr, root_validator
+import re as regex
+from pydantic import Field, EmailStr, validator, root_validator
+from base64 import b64decode
+from magic import from_buffer
 from typing import Optional, List, Dict
 from core import (
     Level,
@@ -26,6 +29,26 @@ class UserInDBSchema(BaseModel):
     avatar: Optional[str] = Field(default=None)
     fullname: Optional[str] = Field(default=None, max_length=64)
     is_active: bool = Field(default=True)
+
+    @validator('avatar')
+    def check_valid_png(cls, value: Optional[str]) -> Optional[str]:
+        """Check the Avatar Base 64 Encoded is Valid PNG Mime Type Raised Error"""
+
+        if value is not None:
+            decoded_avatar = cls.base64_decoded(encoded_avatar=value)
+            if decoded_avatar is not None:
+                if not from_buffer(buffer=decoded_avatar, mime=True) == "image/png":
+                    return value
+
+            raise ValueError("Avatar Should be PNG.")
+
+    @staticmethod
+    def base64_decoded(encoded_avatar: str) -> Optional[bytes]:
+        """Decoded the Base 64 Encoded Avatar if is Valid String Else None"""
+
+        pattern = "^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$"
+        if regex.match(pattern=pattern, string=encoded_avatar):
+            return b64decode(encoded_avatar)
 
 
 class UserOutDBSchema(UserBriefSchema):
