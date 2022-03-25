@@ -10,10 +10,10 @@ class User(LowerNameMixin, orm.Model):
     registry = models
     fields = {
         "id": orm.UUID(primary_key=True, default=uuid4),
-        "mobile": orm.String(unique=True, index=True, pattern=MOBILE_PATTERN),
+        "mobile": orm.String(unique=True, index=True, max_length=10, pattern=MOBILE_PATTERN),
         "password": orm.String(max_length=128),
         "level": orm.Enum(enum=Level, default=Level.EMPLOYEE),
-        "email": orm.Email(allow_null=True, default=None),
+        "email": orm.Email(max_length=255, allow_null=True, default=None),
         "avatar": orm.Text(allow_null=True, default=None),
         "fullname": orm.String(max_length=64, allow_null=True, default=None),
         "is_active": orm.Boolean(index=True, default=True),
