@@ -19,3 +19,15 @@ from .member import (
     MemberOutDBSchema,
     MemberUpdateSchema,
 )
+from .project import (
+    ProjectListSchema,
+    ProjectInDBSchema,
+    ProjectOutDBSchema,
+    ProjectUpdateSchema,
+)
+from .task import (
+    TaskListSchema,
+    TaskInDBSchema,
+    TaskOutDBSchema,
+    TaskUpdateSchema,
+)
