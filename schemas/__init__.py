@@ -7,3 +7,9 @@ from .user import (
     RefreshTokenSchema,
     ChangePasswordSchema,
 )
+from .team import (
+    TeamListSchema,
+    TeamInDBSchema,
+    TeamOutDBSchema,
+    TeamUpdateSchema,
+)
