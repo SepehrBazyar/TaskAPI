@@ -5,6 +5,7 @@ from base64 import b64decode
 from typing import Optional, List, Dict
 from core import (
     Level,
+    settings,
     BaseModel,
     Pagination,
     UUIDSchema,
@@ -22,7 +23,7 @@ class UserBriefSchema(UUIDSchema):
 class UserAvatarValidatorSchema(BaseModel):
     """Schema to Validate Avatar Field of User Check be Valid Encoded PNG"""
 
-    @validator('avatar')
+    @validator("avatar")
     def check_valid_png(cls, value: Optional[str]) -> Optional[str]:
         """Check the Avatar Base 64 Encoded is Valid PNG Mime Type Raised Error"""
 
@@ -62,6 +63,13 @@ class UserOutDBSchema(UserBriefSchema):
     avatar: Optional[str] = Field(default=None)
     fullname: Optional[str] = Field(default=None)
     is_active: bool = Field(default=True)
+
+    @validator("avatar")
+    def avatar_path_url(cls, value: Optional[str]) -> Optional[str]:
+        """Validator to Added Base URL Prefix to Avatar Path Saved if not None"""
+
+        if value is not None:
+            return f"{settings.BASE_URL}/{value}"
 
 
 class UserUpdateSchema(UserAvatarValidatorSchema):
