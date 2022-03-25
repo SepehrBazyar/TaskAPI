@@ -1,5 +1,6 @@
 import orm
 from uuid import uuid4
+from datetime import datetime
 from core import LowerNameMixin
 from db import models
 from .user import User
@@ -14,7 +15,7 @@ class Work(LowerNameMixin, orm.Model):
     registry = models
     fields = {
         "id": orm.UUID(primary_key=True, default=uuid4),
-        "start_time": orm.DateTime(auto_now_add=True),
+        "start_time": orm.DateTime(default=datetime.today),
         "end_time": orm.DateTime(allow_null=True, default=None),
         "user_id": orm.ForeignKey(to=User, on_delete=orm.CASCADE),
         "team_id": orm.ForeignKey(to=Team, on_delete=orm.CASCADE),
