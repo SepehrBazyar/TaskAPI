@@ -15,5 +15,5 @@ class Member(LowerNameMixin, orm.Model):
         "user_id": orm.ForeignKey(to=User, on_delete=orm.CASCADE),
         "team_id": orm.ForeignKey(to=Team, on_delete=orm.CASCADE),
         "role": orm.Enum(enum=Role, default=Role.EMPLOYEE),
-        "joined_at": orm.DateTime(auto_now_add=True),
+        "joined_at": orm.Date(auto_now_add=True),
     }
