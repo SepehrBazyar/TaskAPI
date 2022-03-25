@@ -13,31 +13,31 @@ class ProjectBriefSchema(UUIDSchema):
     team: TeamBriefSchema
 
 
-class ProjectInDBSchema(BaseModel):
+class OptionalFieldSchema(BaseModel):
+    """Schema to Shared Fields of Project Model is Optional Can be None"""
+
+    description: Optional[str] = Field(default=None)
+    start_date: Optional[date] = Field(default=None)
+    end_date: Optional[date] = Field(default=None)
+
+
+class ProjectInDBSchema(OptionalFieldSchema):
     """Schema to Create New Team with Creator ID as Owner Role"""
 
     name: str = Field(min_length=3, max_length=64)
-    description: Optional[str] = Field(default=None)
-    start_date: Optional[date] = Field(default=None)
-    end_date: Optional[date] = Field(default=None)
     team_id: UUID
 
 
-class ProjectOutDBSchema(ProjectBriefSchema):
+class ProjectOutDBSchema(ProjectBriefSchema, OptionalFieldSchema):
     """Schema to Retriever Team with Creator ID as Owner Role"""
 
-    description: Optional[str] = Field(default=None)
-    start_date: Optional[date] = Field(default=None)
-    end_date: Optional[date] = Field(default=None)
+    pass
 
 
-class ProjectUpdateSchema(BaseModel):
+class ProjectUpdateSchema(OptionalFieldSchema):
     """Schema for Update Project Fields All is Optional Items Remove Unsets"""
 
     name: Optional[str] = Field(default=None, min_length=3, max_length=64)
-    description: Optional[str] = Field(default=None)
-    start_date: Optional[date] = Field(default=None)
-    end_date: Optional[date] = Field(default=None)
     team_id: Optional[UUID] = Field(default=None)
 
 

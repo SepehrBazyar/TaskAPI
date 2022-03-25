@@ -22,7 +22,7 @@ class UserBriefSchema(UUIDSchema):
 
 
 class OptionalFieldSchema(BaseModel):
-    """Schema to Create New User with Password Field Hash & Save It"""
+    """Schema to Shared Fields of User Model is Optional Can be None"""
 
     email: Optional[EmailStr] = Field(default=None)
     fullname: Optional[str] = Field(default=None, max_length=64)
