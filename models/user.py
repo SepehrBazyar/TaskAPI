@@ -12,7 +12,7 @@ class User(LowerNameMixin, orm.Model):
         "id": orm.UUID(primary_key=True, default=uuid4),
         "mobile": orm.String(unique=True, index=True, pattern=MOBILE_PATTERN),
         "password": orm.String(max_length=128),
-        "level": orm.Enum(Level, default=Level.EMPLOYEE),
+        "level": orm.Enum(enum=Level, default=Level.EMPLOYEE),
         "email": orm.Email(allow_null=True, default=None),
         "avatar": orm.Text(allow_null=True, default=None),
         "fullname": orm.String(max_length=64, allow_null=True, default=None),

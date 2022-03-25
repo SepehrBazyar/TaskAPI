@@ -12,5 +12,5 @@ class Team(LowerNameMixin, orm.Model):
     fields = {
         "id": orm.UUID(primary_key=True, default=uuid4),
         "name": orm.String(max_length=64, unique=True),
-        "creator": orm.ForeignKey(to=User, on_delete=orm.CASCADE),
+        "creator_id": orm.ForeignKey(to=User, on_delete=orm.CASCADE),
     }
