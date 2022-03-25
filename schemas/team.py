@@ -4,16 +4,27 @@ from core import BaseModel, Pagination, UUIDSchema
 from .user import UserBriefSchema
 
 
-class TeamInDBSchema(BaseModel):
+class TeamNameSchema(BaseModel):
+    """Schema to Shared Fields of Team Model Contain Name String"""
+
+    name: str = Field(min_length=3, max_length=64)
+
+
+class TeamBriefSchema(UUIDSchema, TeamNameSchema):
+    """Schema of the Brief Detials Team to Showing in Teams List"""
+
+    pass
+
+
+class TeamInDBSchema(TeamNameSchema):
     """Schema to Create New Team with Creator ID as Owner Role"""
 
-    name: str = Field(min_length=3, max_length=64)
+    pass
 
 
-class TeamOutDBSchema(BaseModel):
+class TeamOutDBSchema(TeamNameSchema):
     """Schema to Retrieve Team with Creator Brief Detial Information"""
 
-    name: str = Field(min_length=3, max_length=64)
     creator: UserBriefSchema
 
 
@@ -21,12 +32,6 @@ class TeamUpdateSchema(BaseModel):
     """Schema for Update Team Fields All is Optional Items Remove Unsets"""
 
     name: Optional[str] = Field(default=None, min_length=3, max_length=64)
-
-
-class TeamBriefSchema(UUIDSchema):
-    """Schema of the Brief Detials Team to Showing in Teams List"""
-
-    name: str = Field(min_length=3, max_length=64)
 
 
 class TeamListSchema(Pagination):
