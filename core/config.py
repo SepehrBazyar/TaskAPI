@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     DEBUG: bool
 
     # Databases
-    DATABASE_URL: str
+    POSTGRESQL_URL: str
 
     class Config:
         env_file = ".env"

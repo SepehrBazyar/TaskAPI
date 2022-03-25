@@ -7,6 +7,9 @@ from uuid import UUID
 from typing import Optional
 
 
+MOBILE_PATTERN = "^9\\d{9}$"
+
+
 class BaseModel(PydanticBaseModel):
     """Custom Basic Model Schema to ORM Mode and JSON Encoders"""
 
