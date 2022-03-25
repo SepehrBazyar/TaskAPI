@@ -1,5 +1,5 @@
-from pydantic import Field, EmailStr
-from typing import Optional, List
+from pydantic import Field, EmailStr, root_validator
+from typing import Optional, List, Dict
 from core import (
     Level,
     BaseModel,
@@ -52,3 +52,34 @@ class UserListSchema(Pagination):
     """Schema of Users List with Pagination Items Count & Next & Previous"""
 
     results: List[UserBriefSchema] = Field(default=[])
+
+
+class AccessTokenSchema(BaseModel):
+    """Schema of the Update New Access JWT Token with Token Bearer Type"""
+
+    token_type: str = Field(default="bearer")
+    access_token: str
+
+
+class RefreshTokenSchema(AccessTokenSchema):
+    """Schema of the Login JWT Token Inheritance Update with Refresh Token"""
+
+    refresh_token: str
+
+
+class ChangePasswordSchema(BaseModel):
+    """Schema of Get Old & New Password of User to Update & Change Password"""
+
+    old_password: str = Field(max_length=128)
+    new_password: str = Field(max_length=128)
+    confirm_password: str = Field(max_length=128)
+
+    @root_validator
+    def check_passwords_match(cls, values: Dict[str, str]) -> Dict[str, str]:
+        """Validator to Check Matchs New Password & Confirm Password Field"""
+
+        new, confirm = values.get("new_password"), values.get("confirm_password")
+        if not new == confirm:
+            raise ValueError("Passwords Do not Match.")
+
+        return values
