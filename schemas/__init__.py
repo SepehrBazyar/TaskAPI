@@ -13,3 +13,9 @@ from .team import (
     TeamOutDBSchema,
     TeamUpdateSchema,
 )
+from .member import (
+    MemberListSchema,
+    MemberInDBSchema,
+    MemberOutDBSchema,
+    MemberUpdateSchema,
+)

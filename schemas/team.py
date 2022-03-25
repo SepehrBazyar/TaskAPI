@@ -1,5 +1,4 @@
 from pydantic import Field
-from uuid import UUID
 from typing import Optional, List
 from core import BaseModel, Pagination, UUIDSchema
 from .user import UserBriefSchema
