@@ -18,10 +18,20 @@ class UserBriefSchema(UUIDSchema):
 
     mobile: str
     level: Level
+    is_active: bool
 
 
-class UserAvatarValidatorSchema(BaseModel):
+class OptionalFieldSchema(BaseModel):
+    """Schema to Create New User with Password Field Hash & Save It"""
+
+    email: Optional[EmailStr] = Field(default=None)
+    fullname: Optional[str] = Field(default=None, max_length=64)
+
+
+class AvatarMixinSchema(BaseModel):
     """Schema to Validate Avatar Field of User Check be Valid Encoded PNG"""
+
+    avatar: Optional[str] = Field(default=None)
 
     @validator("avatar")
     def check_valid_png(cls, value: Optional[str]) -> Optional[str]:
@@ -44,25 +54,19 @@ class UserAvatarValidatorSchema(BaseModel):
             return b64decode(encoded_avatar)
 
 
-class UserInDBSchema(UserAvatarValidatorSchema):
+class UserInDBSchema(OptionalFieldSchema, AvatarMixinSchema):
     """Schema to Create New User with Password Field Hash & Save It"""
 
     mobile: str = Field(regex=MOBILE_PATTERN)
     password: str = Field(max_length=128)
     level: Level = Field(default=Level.EMPLOYEE)
-    email: Optional[EmailStr] = Field(default=None)
-    avatar: Optional[str] = Field(default=None)
-    fullname: Optional[str] = Field(default=None, max_length=64)
     is_active: bool = Field(default=True)
 
 
-class UserOutDBSchema(UserBriefSchema):
+class UserOutDBSchema(UserBriefSchema, OptionalFieldSchema):
     """Schema to Retrieve User Details Information not Contain Password"""
 
-    email: Optional[EmailStr] = Field(default=None)
     avatar: Optional[str] = Field(default=None)
-    fullname: Optional[str] = Field(default=None)
-    is_active: bool = Field(default=True)
 
     @validator("avatar")
     def avatar_path_url(cls, value: Optional[str]) -> Optional[str]:
@@ -72,14 +76,11 @@ class UserOutDBSchema(UserBriefSchema):
             return f"{settings.BASE_URL}/{value}"
 
 
-class UserUpdateSchema(UserAvatarValidatorSchema):
+class UserUpdateSchema(OptionalFieldSchema, AvatarMixinSchema):
     """Schema for Update User Fields All is Optional Items Remove Unsets"""
 
     mobile: Optional[str] = Field(default=None, regex=MOBILE_PATTERN)
     level: Optional[Level] = Field(default=None)
-    email: Optional[EmailStr] = Field(default=None)
-    avatar: Optional[str] = Field(default=None)
-    fullname: Optional[str] = Field(default=None, max_length=64)
     is_active: Optional[bool] = Field(default=None)
 
 
