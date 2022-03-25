@@ -1,7 +1,7 @@
 import re as regex
 from pydantic import Field, EmailStr, validator, root_validator
-from base64 import b64decode
 from magic import from_buffer
+from base64 import b64decode
 from typing import Optional, List, Dict
 from core import (
     Level,
@@ -19,16 +19,8 @@ class UserBriefSchema(UUIDSchema):
     level: Level
 
 
-class UserInDBSchema(BaseModel):
-    """Schema to Create New User with Password Field Hash & Save It"""
-
-    mobile: str = Field(regex=MOBILE_PATTERN)
-    password: str = Field(max_length=128)
-    level: Level = Field(default=Level.EMPLOYEE)
-    email: Optional[EmailStr] = Field(default=None)
-    avatar: Optional[str] = Field(default=None)
-    fullname: Optional[str] = Field(default=None, max_length=64)
-    is_active: bool = Field(default=True)
+class UserAvatarValidatorSchema(BaseModel):
+    """Schema to Validate Avatar Field of User Check be Valid Encoded PNG"""
 
     @validator('avatar')
     def check_valid_png(cls, value: Optional[str]) -> Optional[str]:
@@ -51,6 +43,18 @@ class UserInDBSchema(BaseModel):
             return b64decode(encoded_avatar)
 
 
+class UserInDBSchema(UserAvatarValidatorSchema):
+    """Schema to Create New User with Password Field Hash & Save It"""
+
+    mobile: str = Field(regex=MOBILE_PATTERN)
+    password: str = Field(max_length=128)
+    level: Level = Field(default=Level.EMPLOYEE)
+    email: Optional[EmailStr] = Field(default=None)
+    avatar: Optional[str] = Field(default=None)
+    fullname: Optional[str] = Field(default=None, max_length=64)
+    is_active: bool = Field(default=True)
+
+
 class UserOutDBSchema(UserBriefSchema):
     """Schema to Retrieve User Details Information not Contain Password"""
 
@@ -60,7 +64,7 @@ class UserOutDBSchema(UserBriefSchema):
     is_active: bool = Field(default=True)
 
 
-class UserUpdateSchema(BaseModel):
+class UserUpdateSchema(UserAvatarValidatorSchema):
     """Schema for Update User Fields All is Optional Items Remove Unsets"""
 
     mobile: Optional[str] = Field(default=None, regex=MOBILE_PATTERN)
