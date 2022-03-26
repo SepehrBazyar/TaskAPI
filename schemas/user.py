@@ -58,7 +58,7 @@ class UserInDBSchema(OptionalFieldSchema, AvatarMixinSchema):
     """Schema to Create New User with Password Field Hash & Save It"""
 
     mobile: str = Field(regex=MOBILE_PATTERN)
-    password: str = Field(max_length=128)
+    password: str = Field(min_length=8, max_length=128)
     level: Level = Field(default=Level.EMPLOYEE)
     is_active: bool = Field(default=True)
 
