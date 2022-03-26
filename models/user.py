@@ -27,7 +27,7 @@ class User(ormar.Model):
     async def sign_up(cls, form: UserInDBSchema) -> Optional["User"]:
         """Sign Up method to Register New User with Hashed Password & Check Mobile"""
 
-        if not await cls.objects.exists(mobile=form.mobile):
+        if not await cls.objects.filter(mobile=form.mobile).exists():
             return await cls.objects.create(**form.dict())
 
     async def sign_in(self, password: str) -> bool:
