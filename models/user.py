@@ -2,7 +2,7 @@ import ormar
 from pydantic import EmailStr
 from uuid import UUID, uuid4
 from typing import Optional
-from core import Level, jwt_auth, MOBILE_PATTERN
+from core import Level, pwd_context, MOBILE_PATTERN
 from db import MainMeta
 from schemas import (
     UserListSchema,
@@ -22,6 +22,18 @@ class User(ormar.Model):
     avatar: Optional[str] = ormar.String(max_length=255, nullable=True, default=None)
     fullname: Optional[str] = ormar.String(max_length=64, nullable=True, default=None)
     is_active: bool = ormar.Boolean(index=True, default=True)
+
+    @classmethod
+    async def sign_up(cls, form: UserInDBSchema) -> Optional["User"]:
+        """Sign Up method to Register New User with Hashed Password & Check Mobile"""
+
+        if not await cls.objects.exists(mobile=form.mobile):
+            return await cls.objects.create(**form.dict())
+
+    async def sign_in(self, password: str) -> bool:
+        """The Method for Verify Hash Password String Returned Boolean Value"""
+
+        return pwd_context.verify(password, self.password)
 
     class Meta(MainMeta):
         pass

@@ -9,6 +9,7 @@ from core import (
     BaseModel,
     Pagination,
     UUIDSchema,
+    pwd_context,
     MOBILE_PATTERN,
 )
 
@@ -61,6 +62,12 @@ class UserInDBSchema(OptionalFieldSchema, AvatarMixinSchema):
     password: str = Field(min_length=8, max_length=128)
     level: Level = Field(default=Level.EMPLOYEE)
     is_active: bool = Field(default=True)
+
+    @validator("password")
+    def password_hashing(cls, value: str) -> str:
+        """Validator Method Utility for Generate Hash Password String"""
+
+        return pwd_context.hash(secret=value)
 
 
 class UserOutDBSchema(UserBriefSchema, OptionalFieldSchema):
