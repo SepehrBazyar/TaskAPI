@@ -14,6 +14,12 @@ from core import (
 )
 
 
+def get_password_hash(password: str) -> str:
+    """Reusable Validator Method Utility for Generate Hash Password String"""
+
+    return pwd_context.hash(secret=password)
+
+
 class UserBriefSchema(UUIDSchema):
     """Schema of the Brief Detials User to Showing in Users List"""
 
@@ -63,11 +69,8 @@ class UserInDBSchema(OptionalFieldSchema, AvatarMixinSchema):
     level: Level = Field(default=Level.EMPLOYEE)
     is_active: bool = Field(default=True)
 
-    @validator("password")
-    def password_hashing(cls, value: str) -> str:
-        """Validator Method Utility for Generate Hash Password String"""
-
-        return pwd_context.hash(secret=value)
+    # validators
+    _password_hashing = validator("password", allow_reuse=True)(get_password_hash)
 
 
 class UserOutDBSchema(UserBriefSchema, OptionalFieldSchema):
@@ -117,7 +120,10 @@ class ChangePasswordSchema(BaseModel):
     new_password: str = Field(max_length=128)
     confirm_password: str = Field(max_length=128)
 
-    @root_validator
+    # validators
+    _password_hashing = validator("new_password", allow_reuse=True)(get_password_hash)
+
+    @root_validator(pre=True)
     def check_passwords_match(cls, values: Dict[str, str]) -> Dict[str, str]:
         """Validator to Check Matchs New Password & Confirm Password Field"""
 
