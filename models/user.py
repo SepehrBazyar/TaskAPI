@@ -9,6 +9,7 @@ from schemas import (
     UserInDBSchema,
     UserOutDBSchema,
     UserUpdateSchema,
+    ChangePasswordSchema,
 )
 
 class User(ormar.Model):
@@ -17,7 +18,7 @@ class User(ormar.Model):
     id: UUID = ormar.UUID(uuid_format="string", primary_key=True, default=uuid4)
     mobile: str = ormar.String(unique=True, index=True, max_length=10, pattern=MOBILE_PATTERN)
     password: str = ormar.String(max_length=128)
-    level: str = ormar.String(max_length=1, choices=list(Level))
+    level: str = ormar.String(max_length=1, choices=list(Level), default=Level.EMPLOYEE.value)
     email: Optional[EmailStr] = ormar.String(max_length=255, nullable=True, default=None)
     avatar: Optional[str] = ormar.String(max_length=255, nullable=True, default=None)
     fullname: Optional[str] = ormar.String(max_length=64, nullable=True, default=None)
@@ -34,6 +35,15 @@ class User(ormar.Model):
         """The Method for Verify Hash Password String Returned Boolean Value"""
 
         return pwd_context.verify(password, self.password)
+
+    async def change_password(self, passwords: ChangePasswordSchema) -> bool:
+        """Utility Method to Change User Password Returned Boolean Value Status"""
+
+        flag = await self.sign_in(password=passwords.old_password)
+        if flag:
+            self.update(password=passwords.new_password)
+
+        return flag
 
     class Meta(MainMeta):
         pass
