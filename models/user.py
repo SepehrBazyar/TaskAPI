@@ -41,7 +41,7 @@ class User(ormar.Model):
 
         flag = await self.sign_in(password=passwords.old_password)
         if flag:
-            self.update(password=passwords.new_password)
+            await self.update(password=passwords.new_password)
 
         return flag
 
