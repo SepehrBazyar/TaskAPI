@@ -1,7 +1,7 @@
 from .postgresql import (
     database,
     metadata,
-    AbstractBaseModel,
+    MainMeta,
     connect_to_postgresql,
     close_postgresql_connection,
 )
