@@ -66,7 +66,7 @@ class UserInDBSchema(OptionalFieldSchema, AvatarMixinSchema):
 
     mobile: str = Field(regex=MOBILE_PATTERN)
     password: str = Field(min_length=8, max_length=128)
-    level: Level = Field(default=Level.EMPLOYEE)
+    level: Level = Field(default=Level.STAFF)
     is_active: bool = Field(default=True)
 
     # validators

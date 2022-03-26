@@ -18,11 +18,17 @@ class User(ormar.Model):
     id: UUID = ormar.UUID(uuid_format="string", primary_key=True, default=uuid4)
     mobile: str = ormar.String(unique=True, index=True, max_length=10, pattern=MOBILE_PATTERN)
     password: str = ormar.String(max_length=128)
-    level: str = ormar.String(max_length=1, choices=list(Level), default=Level.EMPLOYEE.value)
+    level: str = ormar.String(max_length=1, choices=list(Level), default=Level.STAFF.value)
     email: Optional[EmailStr] = ormar.String(max_length=255, nullable=True, default=None)
     avatar: Optional[str] = ormar.String(max_length=255, nullable=True, default=None)
     fullname: Optional[str] = ormar.String(max_length=64, nullable=True, default=None)
     is_active: bool = ormar.Boolean(index=True, default=True)
+
+    @ormar.property_field
+    def level_(self) -> Level:
+        """Returned the Level Instance of Class Model by Level Value in Database"""
+
+        return Level.get_by_value(self.level)
 
     @classmethod
     async def sign_up(cls, form: UserInDBSchema) -> Optional["User"]:
