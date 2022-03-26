@@ -4,6 +4,12 @@ from uuid import UUID, uuid4
 from typing import Optional
 from core import Level, jwt_auth, MOBILE_PATTERN
 from db import MainMeta
+from schemas import (
+    UserListSchema,
+    UserInDBSchema,
+    UserOutDBSchema,
+    UserUpdateSchema,
+)
 
 class User(ormar.Model):
     """User Model Class to Implement Method for Operations of User Entity"""
@@ -19,3 +25,11 @@ class User(ormar.Model):
 
     class Meta(MainMeta):
         pass
+
+    class Shcema:
+        """Inner Class for Contain Collection of Shcemas Use in Routes"""
+
+        List = UserListSchema
+        Create = UserInDBSchema
+        Retrieve = UserOutDBSchema
+        PartialUpdate = UserUpdateSchema
