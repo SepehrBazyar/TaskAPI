@@ -47,7 +47,7 @@ class AvatarMixinSchema(BaseModel):
         if value is not None:
             decoded_avatar = cls.base64_decoded(encoded_avatar=value)
             if decoded_avatar is not None:
-                if not from_buffer(buffer=decoded_avatar, mime=True) == "image/png":
+                if from_buffer(buffer=decoded_avatar, mime=True) == "image/png":
                     return value
 
             raise ValueError("Avatar Should be PNG.")
