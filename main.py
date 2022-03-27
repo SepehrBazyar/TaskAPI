@@ -4,14 +4,11 @@ from db import (
     connect_to_postgresql,
     close_postgresql_connection,
 )
-from api import (
-    v1_0_0_router,
-    v1_0_0,
-)
+from api import latest, versions
 
 
 app = VersionFastAPI()()
-app.include_router(v1_0_0_router)
+app.include_router(latest)
 
 
 # Event Handlers
@@ -23,8 +20,8 @@ app.add_event_handler("shutdown", close_postgresql_connection)
 
 
 # Mount SubAPI Versions
-app.mount(f"/v{v1_0_0.version}", v1_0_0)
-
+for version in versions:
+    app.mount(f"/v{version.version}", version)
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True, log_level="debug")
