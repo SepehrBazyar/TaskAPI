@@ -16,6 +16,9 @@ class Settings(BaseSettings):
     # Databases
     POSTGRESQL_URL: str
 
+    # Media
+    USER_AVATAR_PATH: str
+
     class Config:
         env_file = ".env"
 
