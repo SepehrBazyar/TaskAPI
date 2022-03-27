@@ -1,8 +1,10 @@
 import ormar
+import aiofiles
 from pydantic import EmailStr
+from pathlib import Path
 from uuid import UUID, uuid4
 from typing import Optional
-from core import Level, pwd_context, MOBILE_PATTERN
+from core import settings, pwd_context, Level, MOBILE_PATTERN
 from db import MainMeta
 from schemas import (
     UserListSchema,
@@ -35,6 +37,12 @@ class User(ormar.Model):
         """Sign Up method to Register New User with Hashed Password & Check Mobile"""
 
         if not await cls.objects.filter(mobile=form.mobile).exists():
+            if form.avatar is not None:
+                form.avatar = await cls.save_avatar(
+                    phone_number=form.mobile,
+                    avatar=form.base64_decoded(encoded_avatar=form.avatar),
+                )
+
             return await cls.objects.create(**form.dict())
 
     async def sign_in(self, password: str) -> bool:
@@ -50,6 +58,26 @@ class User(ormar.Model):
             await self.update(password=passwords.new_password)
 
         return flag
+
+    @classmethod
+    async def save_avatar(cls, phone_number: str, avatar: bytes) -> str:
+        """Saved an Avatar Binary Buffer with Phone Number & Returned the Path"""
+
+        avatar_path = await cls.__get_avatar_path(phone_number=phone_number)
+        async with aiofiles.open(avatar_path, "wb") as avatar_file:
+            await avatar_file.write(avatar)
+
+        return avatar_path
+
+    @staticmethod
+    async def __get_avatar_path(phone_number: str) -> str:
+        """Returned the Path of Avatar for this Phone Number & Check Make Directory"""
+
+        users_dir = Path(settings.USER_AVATAR_PATH)
+        if not users_dir.exists():
+            users_dir.mkdir(parents=True, exist_ok=True)
+
+        return str(users_dir / f"{phone_number}.png")
 
     class Meta(MainMeta):
         pass

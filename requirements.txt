@@ -1,3 +1,4 @@
+aiofiles==0.8.0
 aiosqlite==0.17.0
 alembic==1.7.7
 anyio==3.5.0
