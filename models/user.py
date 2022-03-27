@@ -30,7 +30,7 @@ class User(ormar.Model):
     def level_(self) -> Level:
         """Returned the Level Instance of Class Model by Level Value in Database"""
 
-        return Level.get_by_value(self.level)
+        return Level.get_by_value(value=self.level)
 
     @classmethod
     async def sign_up(cls, form: UserInDBSchema) -> Optional["User"]:
