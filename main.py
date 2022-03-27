@@ -5,11 +5,13 @@ from db import (
     close_postgresql_connection,
 )
 from api import (
+    v1_0_0_router,
     v1_0_0,
 )
 
 
 app = VersionFastAPI()()
+app.include_router(v1_0_0_router)
 
 
 # Event Handlers
