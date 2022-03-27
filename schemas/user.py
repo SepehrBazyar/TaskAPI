@@ -9,8 +9,15 @@ from core import (
     BaseModel,
     Pagination,
     UUIDSchema,
+    pwd_context,
     MOBILE_PATTERN,
 )
+
+
+def get_password_hash(password: str) -> str:
+    """Reusable Validator Method Utility for Generate Hash Password String"""
+
+    return pwd_context.hash(secret=password)
 
 
 class UserBriefSchema(UUIDSchema):
@@ -40,7 +47,7 @@ class AvatarMixinSchema(BaseModel):
         if value is not None:
             decoded_avatar = cls.base64_decoded(encoded_avatar=value)
             if decoded_avatar is not None:
-                if not from_buffer(buffer=decoded_avatar, mime=True) == "image/png":
+                if from_buffer(buffer=decoded_avatar, mime=True) == "image/png":
                     return value
 
             raise ValueError("Avatar Should be PNG.")
@@ -58,9 +65,12 @@ class UserInDBSchema(OptionalFieldSchema, AvatarMixinSchema):
     """Schema to Create New User with Password Field Hash & Save It"""
 
     mobile: str = Field(regex=MOBILE_PATTERN)
-    password: str = Field(max_length=128)
-    level: Level = Field(default=Level.EMPLOYEE)
+    password: str = Field(min_length=8, max_length=128)
+    level: Level = Field(default=Level.STAFF)
     is_active: bool = Field(default=True)
+
+    # validators
+    _password_hashing = validator("password", allow_reuse=True)(get_password_hash)
 
 
 class UserOutDBSchema(UserBriefSchema, OptionalFieldSchema):
@@ -110,7 +120,10 @@ class ChangePasswordSchema(BaseModel):
     new_password: str = Field(max_length=128)
     confirm_password: str = Field(max_length=128)
 
-    @root_validator
+    # validators
+    _password_hashing = validator("new_password", allow_reuse=True)(get_password_hash)
+
+    @root_validator(pre=True)
     def check_passwords_match(cls, values: Dict[str, str]) -> Dict[str, str]:
         """Validator to Check Matchs New Password & Confirm Password Field"""
 

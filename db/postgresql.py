@@ -1,11 +1,19 @@
-from orm import ModelRegistry
+from ormar import ModelMeta
 from databases import Database
+from sqlalchemy import MetaData
 from uvicorn.config import logger
 from core import settings
 
 
 database = Database(settings.POSTGRESQL_URL)
-models = ModelRegistry(database=database)
+metadata = MetaData()
+
+
+class MainMeta(ModelMeta):
+    """Singleton Meta Class Metadata & Database Attrs ORM Model Classes"""
+
+    metadata = metadata
+    database = database
 
 
 async def connect_to_postgresql():

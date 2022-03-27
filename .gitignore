@@ -145,5 +145,8 @@ cython_debug/
 # Database
 migrations/versions/*
 
+# Media
+media/
+
 stderr.log
 stdout.log

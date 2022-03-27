@@ -1,3 +1,5 @@
+aiofiles==0.8.0
+aiosqlite==0.17.0
 alembic==1.7.7
 anyio==3.5.0
 argon2-cffi==21.3.0
@@ -28,7 +30,9 @@ Mako==1.2.0
 MarkupSafe==2.1.1
 orjson==3.6.7
 orm==0.3.1
+ormar==0.10.25
 passlib==1.7.4
+psycopg2-binary==2.9.3
 pyasn1==0.4.8
 pycparser==2.21
 pydantic==1.9.0
@@ -41,7 +45,7 @@ requests==2.27.1
 rsa==4.8
 six==1.16.0
 sniffio==1.2.0
-SQLAlchemy==1.4.32
+SQLAlchemy==1.4.31
 starlette==0.17.1
 typesystem==0.3.1
 typing-extensions==4.1.1

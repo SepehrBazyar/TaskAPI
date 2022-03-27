@@ -28,18 +28,6 @@ class AuthJWT:
         self.__refresh_expire_time = timedelta(days=refresh_expire_day)
         self.__access_expire_time = timedelta(minutes=access_expire_minute)
 
-    @staticmethod
-    async def get_password_hash(password: str) -> str:
-        """The Static Method Utility for Generate Hash Password String"""
-
-        return pwd_context.hash(password)
-
-    @staticmethod
-    async def verify_password(plain_password: str, hashed_password: str) -> bool:
-        """The Static Method Utility for Verify Hash Password String"""
-
-        return pwd_context.verify(plain_password, hashed_password)
-
     async def __create_token(
         self,
         subjects: Dict[str, Any],
