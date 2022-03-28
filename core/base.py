@@ -3,6 +3,8 @@ from pydantic import (
     Field,
     BaseModel as PydanticBaseModel,
 )
+from ormar import Model
+from abc import ABC
 from uuid import UUID
 from typing import Optional
 
@@ -46,3 +48,17 @@ class Pagination(BaseModel):
     next: Optional[str] = Field(default=None)
     previous: Optional[str] = Field(default=None)
     results: list = Field(default=[])
+
+
+class BaseModelSerializer(ABC):
+    """Abstract Base Class to Collect ORM Model & Model Schemas Inner Class"""
+
+    model: Model
+
+    class Shcema:
+        """Inner Class for Contain Collection of Shcemas Use in Routes"""
+
+        List: BaseModel
+        Create: BaseModel
+        Retrieve: BaseModel
+        PartialUpdate: BaseModel

@@ -83,7 +83,7 @@ class UserOutDBSchema(UserBriefSchema, OptionalFieldSchema):
         """Validator to Added Base URL Prefix to Avatar Path Saved if not None"""
 
         if value is not None:
-            return f"{settings.BASE_URL}/{value}"
+            return settings.BASE_URL + value
 
 
 class UserUpdateSchema(OptionalFieldSchema, AvatarMixinSchema):

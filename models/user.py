@@ -4,7 +4,13 @@ from pydantic import EmailStr
 from pathlib import Path
 from uuid import UUID, uuid4
 from typing import Optional
-from core import settings, pwd_context, Level, MOBILE_PATTERN
+from core import (
+    Level,
+    settings,
+    pwd_context,
+    MOBILE_PATTERN,
+    BaseModelSerializer,
+)
 from db import MainMeta
 from schemas import (
     UserListSchema,
@@ -82,9 +88,13 @@ class User(ormar.Model):
     class Meta(MainMeta):
         pass
 
-    class Shcema:
-        """Inner Class for Contain Collection of Shcemas Use in Routes"""
 
+class UserSerializer(BaseModelSerializer):
+    """Serialzer Model Class for User ORM Model Class with Schemas"""
+
+    model = User
+
+    class Shcema:
         List = UserListSchema
         Create = UserInDBSchema
         Retrieve = UserOutDBSchema

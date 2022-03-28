@@ -4,7 +4,7 @@ from fastapi_utils.cbv import cbv
 from fastapi_utils.inferring_router import InferringRouter
 from abc import ABC
 from typing import Optional, List
-from core import ItemsPerPage, DBPagination
+from core import ItemsPerPage, DBPagination, BaseModelSerializer
 from models import User
 from .deps import get_current_user
 
@@ -21,13 +21,12 @@ class GenericAPIView:
 
     def __init__(
         self,
-        model: ormar.Model,
-        schemas,
         router: InferringRouter,
+        serializer: BaseModelSerializer,
         name: Optional[str] = None,
     ):
-        self.router, self.model = router, model
-        self.schemas = schemas
+        self.router = router
+        self.model, self.schemas = serializer.model, serializer.Shcema
         self.name = self.model.get_name(lower=True) if name is None else name
 
     async def list(

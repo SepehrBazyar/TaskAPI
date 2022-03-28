@@ -5,6 +5,7 @@ from .base import (
     ItemsPerPage,
     MOBILE_PATTERN,
     SuccessfullSchema,
+    BaseModelSerializer,
 )
 from .config import settings
 from .enums import Level, Role
