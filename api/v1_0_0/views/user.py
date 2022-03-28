@@ -2,11 +2,12 @@ from fastapi import Depends, Body, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_utils.cbv import cbv
 from fastapi_utils.inferring_router import InferringRouter
-from core import jwt_auth
+from core import jwt_auth, SuccessfullSchema
 from models import User, UserSerializer
 from schemas import (
     AccessTokenSchema,
     RefreshTokenSchema,
+    ChangePasswordSchema,
 )
 from api.base import BaseAPIView, GenericAPIView
 
@@ -89,3 +90,19 @@ class UserSelfAPIView(BaseAPIView):
         """Showing the Profile Detail Item Fields of this Current User"""
 
         return self.current_user
+
+
+    @router.post(
+        "/change-password/",
+        status_code=status.HTTP_200_OK,
+    )
+    async def change_password(self, passwords: ChangePasswordSchema) -> SuccessfullSchema:
+        """Change & Update the Password of this Current User with Check Correctly"""
+
+        flag = await self.current_user.change_password(passwords=passwords)
+        if flag:
+            return SuccessfullSchema()
+        
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Wrong Password."
+        )
