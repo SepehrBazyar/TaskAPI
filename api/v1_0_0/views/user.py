@@ -1,15 +1,10 @@
 from fastapi_utils.inferring_router import InferringRouter
 from models import User
-from api.base import ListCreateAPIView, Generics
+from api.base import GenericAPIView
 
 
 router = InferringRouter()
 
-class UserListCreateAPIView(ListCreateAPIView):
-    """PASS"""
 
-    model = User
-
-
-generic = Generics(router, model=User)
+generic = GenericAPIView(User, User.Shcema, router)
 generic.list_create()

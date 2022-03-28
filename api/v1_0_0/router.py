@@ -1,9 +1,10 @@
 from fastapi import APIRouter
-from .views import (
-    user_router,
-)
+from .views import generics
 
 
 router = APIRouter()
 
-router.include_router(user_router, prefix="/user", tags=["user"])
+for generic in generics:
+    router.include_router(
+        generic.router, prefix=f"/{generic.name}", tags=[generic.name]
+    )

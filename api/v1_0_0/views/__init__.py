@@ -1,1 +1,6 @@
-from .user import router as user_router
+from .user import generic as user_generic
+
+
+generics = [
+    user_generic,
+]
