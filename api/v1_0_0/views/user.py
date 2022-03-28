@@ -7,6 +7,7 @@ from models import User, UserSerializer
 from schemas import (
     AccessTokenSchema,
     RefreshTokenSchema,
+    UserSelfUpdateSchema,
     ChangePasswordSchema,
 )
 from api.base import BaseAPIView, GenericAPIView
@@ -97,7 +98,7 @@ class UserSelfAPIView(BaseAPIView):
         status_code=status.HTTP_200_OK,
     )
     async def edit_profile(
-        self, updated_user: UserSerializer.Shcema.PartialUpdate
+        self, updated_user: UserSelfUpdateSchema
     ) -> SuccessfullSchema:
         """Edit the Profile Detail Item Fields of this Current User"""
 

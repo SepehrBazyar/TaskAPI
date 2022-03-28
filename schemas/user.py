@@ -87,12 +87,19 @@ class UserOutDBSchema(UserBriefSchema, OptionalFieldSchema):
             return settings.BASE_URL + value
 
 
-class UserUpdateSchema(OptionalFieldSchema, AvatarMixinSchema, ValidUpdateMixinSchema):
-    """Schema for Update User Fields All is Optional Items Remove Unsets"""
+class UserSelfUpdateSchema(
+    OptionalFieldSchema, AvatarMixinSchema, ValidUpdateMixinSchema
+):
+    """Schema for Update Self User Fields All is Optional Items Remove Unsets"""
 
     mobile: Optional[str] = Field(default=None, regex=MOBILE_PATTERN)
-    level: Optional[Level] = Field(default=None)
     is_active: Optional[bool] = Field(default=None)
+
+
+class UserUpdateSchema(UserSelfUpdateSchema):
+    """Schema for Update User Fields All is Optional Items Remove Unsets"""
+
+    level: Optional[Level] = Field(default=None)
 
 
 class UserListSchema(Pagination):

@@ -6,6 +6,7 @@ from .user import (
     UserFilterSchema,
     AccessTokenSchema,
     RefreshTokenSchema,
+    UserSelfUpdateSchema,
     ChangePasswordSchema,
 )
 from .team import (
