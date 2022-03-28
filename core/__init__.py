@@ -3,6 +3,7 @@ from .base import (
     Pagination,
     ItemsPerPage,
     MOBILE_PATTERN,
+    PrimaryKeyMixin,
     PrimaryKeySchema,
     SuccessfullSchema,
     BaseModelSerializer,

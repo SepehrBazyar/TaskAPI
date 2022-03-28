@@ -23,7 +23,7 @@ async def login(
 ) -> RefreshTokenSchema:
     """Authorize View Get Username & Password to Login User Returned JWT Token"""
 
-    user = await User.objects.get_or_none(mboile=form.username, is_active=True)
+    user = await User.objects.get_or_none(mobile=form.username, is_active=True)
     if user is not None and await user.sign_in(password=form.password):
         return {
             "access_token": await jwt_auth.create_access_token(user_id=user.id),

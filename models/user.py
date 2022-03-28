@@ -2,13 +2,13 @@ import ormar
 import aiofiles
 from pydantic import EmailStr
 from pathlib import Path
-from uuid import UUID, uuid4
 from typing import Optional
 from core import (
     Level,
     settings,
     pwd_context,
     MOBILE_PATTERN,
+    PrimaryKeyMixin,
     BaseModelSerializer,
 )
 from db import MainMeta
@@ -20,10 +20,9 @@ from schemas import (
     ChangePasswordSchema,
 )
 
-class User(ormar.Model):
+class User(PrimaryKeyMixin, ormar.Model):
     """User Model Class to Implement Method for Operations of User Entity"""
 
-    id: UUID = ormar.UUID(uuid_format="string", primary_key=True, default=uuid4)
     mobile: str = ormar.String(unique=True, index=True, max_length=10, pattern=MOBILE_PATTERN)
     password: str = ormar.String(max_length=128)
     level: str = ormar.String(max_length=1, choices=list(Level), default=Level.STAFF.value)

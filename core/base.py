@@ -1,11 +1,11 @@
+import ormar
 import orjson
 from pydantic import (
     Field,
     BaseModel as PydanticBaseModel,
 )
-from ormar import Model
 from abc import ABC
-from uuid import UUID
+from uuid import UUID, uuid4
 from typing import Optional
 
 
@@ -50,10 +50,16 @@ class Pagination(BaseModel):
     results: list = Field(default=[])
 
 
+class PrimaryKeyMixin:
+    """Mixin Class of UUID Primary Key Value for Response in Create New Entity"""
+
+    id: UUID = ormar.UUID(uuid_format="string", primary_key=True, default=uuid4)
+
+
 class BaseModelSerializer(ABC):
     """Abstract Base Class to Collect ORM Model & Model Schemas Inner Class"""
 
-    model: Model
+    model: ormar.Model
 
     class Shcema:
         """Inner Class for Contain Collection of Shcemas Use in Routes"""
