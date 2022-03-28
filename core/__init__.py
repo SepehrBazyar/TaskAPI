@@ -1,9 +1,9 @@
 from .base import (
     BaseModel,
-    UUIDSchema,
     Pagination,
     ItemsPerPage,
     MOBILE_PATTERN,
+    PrimaryKeySchema,
     SuccessfullSchema,
     BaseModelSerializer,
 )

@@ -8,9 +8,9 @@ from core import (
     settings,
     BaseModel,
     Pagination,
-    UUIDSchema,
     pwd_context,
     MOBILE_PATTERN,
+    PrimaryKeySchema,
 )
 
 
@@ -20,7 +20,7 @@ def get_password_hash(password: str) -> str:
     return pwd_context.hash(secret=password)
 
 
-class UserBriefSchema(UUIDSchema):
+class UserBriefSchema(PrimaryKeySchema):
     """Schema of the Brief Detials User to Showing in Users List"""
 
     mobile: str

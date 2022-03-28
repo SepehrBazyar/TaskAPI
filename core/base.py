@@ -28,7 +28,7 @@ class SuccessfullSchema(BaseModel):
     status: bool = True
 
 
-class UUIDSchema(BaseModel):
+class PrimaryKeySchema(BaseModel):
     """Schema of UUID Primary Key Value for Response in Create New Entity"""
 
     id: UUID

@@ -13,7 +13,7 @@ class BaseAPIView(ABC):
     """Abstract Base View Class to Shared Dependencies etc Authentication"""
 
     # Shared Dependencies As a Class Atrribiutes Access from Self Parameter
-    # current_user: User = Depends(get_current_user, use_cache=True)
+    current_user: User = Depends(get_current_user, use_cache=True)
 
 
 class GenericAPIView:

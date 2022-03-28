@@ -2,11 +2,11 @@ from pydantic import Field
 from uuid import UUID
 from datetime import date
 from typing import Optional, List
-from core import BaseModel, Pagination, UUIDSchema
+from core import BaseModel, Pagination, PrimaryKeySchema
 from .team import TeamBriefSchema
 
 
-class ProjectBriefSchema(UUIDSchema):
+class ProjectBriefSchema(PrimaryKeySchema):
     """Schema of Brief Detials Project to Showing in Projects List with Team Info"""
 
     name: str
