@@ -1,13 +1,14 @@
+import ormar
 from fastapi import Depends, Request, HTTPException, status
 from fastapi_utils.cbv import cbv
 from fastapi_utils.inferring_router import InferringRouter
-from ormar import QuerySet
 from abc import ABC
 from typing import Optional
 from core import (
     BaseModel,
     ItemsPerPage,
     DBPagination,
+    PrimaryKeySchema,
     BaseModelSerializer,
 )
 from models import User
@@ -34,12 +35,7 @@ class GenericAPIView:
         self.model, self.schemas = serializer.model, serializer.Shcema
         self.name = self.model.get_name(lower=True) if name is None else name
 
-    async def list(
-        self,
-        request: Request,
-        pagination: ItemsPerPage,
-        params: BaseModel,
-    ):
+    async def list(self, request: Request, pagination: ItemsPerPage, params: BaseModel):
         items = params.dict(exclude_none=True)
         count: int = await self.model.objects.filter(**items).count()
         paginate = DBPagination(url=request.url, total=count, paginations=pagination)
@@ -49,7 +45,7 @@ class GenericAPIView:
             )
 
         next, previous = await paginate.next_and_previous()
-        queryset: QuerySet = (
+        queryset: ormar.QuerySet = (
             self.model.objects.filter(**items).offset(paginate.skip).limit(paginate.size)
         )
 
@@ -58,6 +54,18 @@ class GenericAPIView:
             "next": next,
             "previous": previous,
             "results": await queryset.all(),
+        }
+
+    async def create(self, new_model: BaseModel):
+        try:
+            model: ormar.Model = await self.model.objects.create(**new_model.dict())
+        except Exception:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="Insert Data Failed."
+            )
+
+        return {
+            "id": model.id,
         }
 
     def list_create(self, path: str = "/"):
@@ -79,8 +87,19 @@ class GenericAPIView:
                 pagination: ItemsPerPage = Depends(),
                 params: __parent.schemas.Filter = Depends(),
             ) -> __parent.schemas.List:
-                """Returned the List of Entity Model with Brief Details in Pagination Mode"""
+                """Returned the Brief Details List of Entity Model with Pagination"""
 
                 return await self.__parent.list(
                     request=request, pagination=pagination, params=params
                 )
+
+            @__parent.router.post(
+                path,
+                status_code=status.HTTP_201_CREATED,
+            )
+            async def create(
+                self, new_model: __parent.schemas.Create
+            ) -> PrimaryKeySchema:
+                """Create New Entity Model & Returned Primary Key UUID Response"""
+
+                return await self.__parent.create(new_model=new_model)
