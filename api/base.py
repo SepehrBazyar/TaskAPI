@@ -3,11 +3,12 @@ from fastapi import Depends, Request, HTTPException, status
 from fastapi_utils.cbv import cbv
 from fastapi_utils.inferring_router import InferringRouter
 from abc import ABC
-from typing import Optional
+from typing import Optional, Dict, Any
 from core import (
     BaseModel,
     ItemsPerPage,
     DBPagination,
+    PrimaryKeyMixin,
     PrimaryKeySchema,
     BaseModelSerializer,
 )
@@ -58,7 +59,7 @@ class GenericAPIView:
 
     async def create(self, new_model: BaseModel):
         try:
-            model: ormar.Model = await self.model.objects.create(**new_model.dict())
+            model = await self.perform_create(form_data=new_model.dict())
         except Exception:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST, detail="Insert Data Failed."
@@ -67,6 +68,11 @@ class GenericAPIView:
         return {
             "id": model.id,
         }
+
+    async def perform_create(self, form_data: Dict[str, Any]) -> PrimaryKeyMixin:
+        """Coroutine Method Called Before Create ORM Model to Override Generics"""
+
+        return await self.model.objects.create(**form_data)
 
     def list_create(self, path: str = "/"):
         """Generate Class Based View for List & Create API View Operations"""
