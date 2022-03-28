@@ -56,6 +56,22 @@ class User(PrimaryKeyMixin, ormar.Model):
 
         return pwd_context.verify(password, self.password)
 
+    async def edit(self, update_form: UserUpdateSchema) -> bool:
+        """Utility Method to Change and Update User Fields by Update Schema Fields"""
+
+        if update_form.mobile is not None:
+            if await self.__class__.objects.filter(mobile=update_form.mobile).exists():
+                return False
+
+        if update_form.avatar is not None:
+            update_form.avatar = await self.save_avatar(
+                phone_number=self.mobile,
+                avatar=update_form.base64_decoded(encoded_avatar=update_form.avatar)
+            )
+
+        await self.update(**update_form.dict(exclude_unset=True))
+        return True
+
     async def change_password(self, passwords: ChangePasswordSchema) -> bool:
         """Utility Method to Change User Password Returned Boolean Value Status"""
 

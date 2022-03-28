@@ -7,6 +7,7 @@ from .base import (
     PrimaryKeySchema,
     SuccessfullSchema,
     BaseModelSerializer,
+    ValidUpdateMixinSchema,
 )
 from .config import settings
 from .enums import Level, Role

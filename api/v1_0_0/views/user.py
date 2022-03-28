@@ -92,11 +92,31 @@ class UserSelfAPIView(BaseAPIView):
         return self.current_user
 
 
+    @router.patch(
+        _PATH,
+        status_code=status.HTTP_200_OK,
+    )
+    async def edit_profile(
+        self, updated_user: UserSerializer.Shcema.PartialUpdate
+    ) -> SuccessfullSchema:
+        """Edit the Profile Detail Item Fields of this Current User"""
+
+        flag = await self.current_user.edit(update_form=updated_user)
+        if flag:
+            return SuccessfullSchema()
+
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Update Data Failed."
+        )
+
+
     @router.post(
         "/change-password/",
         status_code=status.HTTP_200_OK,
     )
-    async def change_password(self, passwords: ChangePasswordSchema) -> SuccessfullSchema:
+    async def change_password(
+        self, passwords: ChangePasswordSchema
+    ) -> SuccessfullSchema:
         """Change & Update the Password of this Current User with Check Correctly"""
 
         flag = await self.current_user.change_password(passwords=passwords)

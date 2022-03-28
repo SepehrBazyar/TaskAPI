@@ -2,11 +2,12 @@ import ormar
 import orjson
 from pydantic import (
     Field,
+    root_validator,
     BaseModel as PydanticBaseModel,
 )
 from abc import ABC
 from uuid import UUID, uuid4
-from typing import Optional
+from typing import Optional, Dict, Any
 
 
 MOBILE_PATTERN = "^9\\d{9}$"
@@ -48,6 +49,20 @@ class Pagination(BaseModel):
     next: Optional[str] = Field(default=None)
     previous: Optional[str] = Field(default=None)
     results: list = Field(default=[])
+
+
+class ValidUpdateMixinSchema(BaseModel):
+    """Mixin Schema to Root Validator for Check All Fields is not None"""
+
+    @root_validator(pre=True)
+    def check_all_not_none(cls, values: Dict[str, Optional[Any]]):
+        """Validator to Check All Fields is not None and a Field is Changes"""
+
+        for value in values.values():
+            if value is not None:
+                return values
+
+        raise ValueError("No Changes were Done.")
 
 
 class PrimaryKeyMixin:

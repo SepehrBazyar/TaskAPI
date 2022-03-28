@@ -11,6 +11,7 @@ from core import (
     pwd_context,
     MOBILE_PATTERN,
     PrimaryKeySchema,
+    ValidUpdateMixinSchema,
 )
 
 
@@ -86,7 +87,7 @@ class UserOutDBSchema(UserBriefSchema, OptionalFieldSchema):
             return settings.BASE_URL + value
 
 
-class UserUpdateSchema(OptionalFieldSchema, AvatarMixinSchema):
+class UserUpdateSchema(OptionalFieldSchema, AvatarMixinSchema, ValidUpdateMixinSchema):
     """Schema for Update User Fields All is Optional Items Remove Unsets"""
 
     mobile: Optional[str] = Field(default=None, regex=MOBILE_PATTERN)
