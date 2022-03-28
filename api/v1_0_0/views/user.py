@@ -1,5 +1,6 @@
 from fastapi import Depends, Body, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
+from fastapi_utils.cbv import cbv
 from fastapi_utils.inferring_router import InferringRouter
 from core import jwt_auth
 from models import User, UserSerializer
@@ -72,3 +73,19 @@ async def refresh(
 
 
 generic.list_create()
+
+
+@cbv(router)
+class UserSelfAPIView(BaseAPIView):
+    """Class Based View for See and Edit Profile Operations for Self User Model"""
+
+    _PATH = "/profile/"
+
+    @router.get(
+        _PATH,
+        status_code=status.HTTP_200_OK,
+    )
+    async def show_profile(self) -> UserSerializer.Shcema.Retrieve:
+        """Showing the Profile Detail Item Fields of this Current User"""
+
+        return self.current_user

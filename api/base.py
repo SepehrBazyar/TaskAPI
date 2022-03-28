@@ -3,7 +3,7 @@ from fastapi import Depends, Request, HTTPException, status
 from fastapi_utils.cbv import cbv
 from fastapi_utils.inferring_router import InferringRouter
 from abc import ABC
-from typing import Optional, Dict, Any
+from typing import Optional
 from core import (
     BaseModel,
     ItemsPerPage,
