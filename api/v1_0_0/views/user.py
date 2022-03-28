@@ -1,4 +1,4 @@
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, Body, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_utils.inferring_router import InferringRouter
 from core import jwt_auth
@@ -33,6 +33,26 @@ async def login(
     raise HTTPException(
         status_code=status.HTTP_400_BAD_REQUEST,
         detail="Phone Number or Password Incorrect.",
+    )
+
+
+@router.post(
+    "/refresh/",
+    status_code=status.HTTP_200_OK,
+)
+async def refresh(
+    refresh: str = Body(..., embed=True),
+) -> AccessTokenSchema:
+    """View to Obtain New Updated JWT Access Token by Sent the Refresh Token in Body"""
+
+    access_token = await jwt_auth.update_access_token(refresh_token=refresh)
+    if access_token is not None:
+        return {
+            "access_token": access_token,
+        }
+
+    raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST, detail="Refresh Token is not Valid."
     )
 
 
