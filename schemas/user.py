@@ -100,6 +100,13 @@ class UserListSchema(Pagination):
     results: List[UserBriefSchema] = Field(default=[])
 
 
+class UserFilterSchema(BaseModel):
+    """Schema to Filter User List by Query Parameters Value"""
+
+    level: Optional[Level] = Field(default=None)
+    is_active: Optional[bool] = Field(default=None)
+
+
 class AccessTokenSchema(BaseModel):
     """Schema of the Update New Access JWT Token with Token Bearer Type"""
 

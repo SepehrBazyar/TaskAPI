@@ -1,10 +1,15 @@
-import ormar
 from fastapi import Depends, Request, HTTPException, status
 from fastapi_utils.cbv import cbv
 from fastapi_utils.inferring_router import InferringRouter
+from ormar import QuerySet
 from abc import ABC
-from typing import Optional, List
-from core import ItemsPerPage, DBPagination, BaseModelSerializer
+from typing import Optional
+from core import (
+    BaseModel,
+    ItemsPerPage,
+    DBPagination,
+    BaseModelSerializer,
+)
 from models import User
 from .deps import get_current_user
 
@@ -33,8 +38,10 @@ class GenericAPIView:
         self,
         request: Request,
         pagination: ItemsPerPage,
+        params: BaseModel,
     ):
-        count: int = await self.model.objects.count()
+        items = params.dict(exclude_none=True)
+        count: int = await self.model.objects.filter(**items).count()
         paginate = DBPagination(url=request.url, total=count, paginations=pagination)
         if not await paginate.is_valid_page():
             raise HTTPException(
@@ -42,15 +49,15 @@ class GenericAPIView:
             )
 
         next, previous = await paginate.next_and_previous()
-        models: List[ormar.Model] = (
-            await self.model.objects.offset(paginate.skip).limit(paginate.size).all()
+        queryset: QuerySet = (
+            self.model.objects.filter(**items).offset(paginate.skip).limit(paginate.size)
         )
 
         return {
             "count": count,
             "next": next,
             "previous": previous,
-            "results": models,
+            "results": await queryset.all(),
         }
 
     def list_create(self, path: str = "/"):
@@ -70,7 +77,10 @@ class GenericAPIView:
                 self,
                 request: Request,
                 pagination: ItemsPerPage = Depends(),
+                params: __parent.schemas.Filter = Depends(),
             ) -> __parent.schemas.List:
                 """Returned the List of Entity Model with Brief Details in Pagination Mode"""
 
-                return await self.__parent.list(request=request, pagination=pagination)
+                return await self.__parent.list(
+                    request=request, pagination=pagination, params=params
+                )

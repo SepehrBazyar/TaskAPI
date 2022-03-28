@@ -3,6 +3,7 @@ from .user import (
     UserInDBSchema,
     UserOutDBSchema,
     UserUpdateSchema,
+    UserFilterSchema,
     AccessTokenSchema,
     RefreshTokenSchema,
     ChangePasswordSchema,

@@ -68,3 +68,4 @@ class BaseModelSerializer(ABC):
         Create: BaseModel
         Retrieve: BaseModel
         PartialUpdate: BaseModel
+        Filter: BaseModel = BaseModel

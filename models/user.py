@@ -17,6 +17,7 @@ from schemas import (
     UserInDBSchema,
     UserOutDBSchema,
     UserUpdateSchema,
+    UserFilterSchema,
     ChangePasswordSchema,
 )
 
@@ -93,8 +94,9 @@ class UserSerializer(BaseModelSerializer):
 
     model = User
 
-    class Shcema:
+    class Shcema(BaseModelSerializer.Shcema):
         List = UserListSchema
         Create = UserInDBSchema
         Retrieve = UserOutDBSchema
         PartialUpdate = UserUpdateSchema
+        Filter = UserFilterSchema
