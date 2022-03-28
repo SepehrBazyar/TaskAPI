@@ -59,7 +59,7 @@ class GenericAPIView:
 
     async def create(self, new_model: BaseModel):
         try:
-            model = await self.perform_create(form_data=new_model.dict())
+            model = await self.perform_create(model_form=new_model)
         except Exception:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST, detail="Insert Data Failed."
@@ -69,10 +69,10 @@ class GenericAPIView:
             "id": model.id,
         }
 
-    async def perform_create(self, form_data: Dict[str, Any]) -> PrimaryKeyMixin:
+    async def perform_create(self, model_form: BaseModel) -> PrimaryKeyMixin:
         """Coroutine Method Called Before Create ORM Model to Override Generics"""
 
-        return await self.model.objects.create(**form_data)
+        return await self.model.objects.create(**model_form.dict())
 
     def list_create(self, path: str = "/"):
         """Generate Class Based View for List & Create API View Operations"""

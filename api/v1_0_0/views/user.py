@@ -7,11 +7,26 @@ from schemas import (
     AccessTokenSchema,
     RefreshTokenSchema,
 )
-from api.base import GenericAPIView
+from api.base import BaseAPIView, GenericAPIView
 
 
 router = InferringRouter()
-generic = GenericAPIView(router, serializer=UserSerializer)
+
+
+class UserGenericAPIView(GenericAPIView):
+    """Generic Class Based Views for User Model Override Some of Methods"""
+
+    async def perform_create(self, model_form: UserSerializer.Shcema.Create) -> User:
+        """Perform Create Method Called Before Create & Use Sign Up User Method"""
+
+        new_user = await User.sign_up(form=model_form)
+        if new_user is None:
+            raise ValueError("Phone Number Already Existed.")
+
+        return new_user
+
+
+generic = UserGenericAPIView(router, serializer=UserSerializer)
 
 
 @router.post(
