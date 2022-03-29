@@ -127,3 +127,6 @@ class UserSelfAPIView(BaseAPIView):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Wrong Password."
         )
+
+
+generic.retrieve_update_destory()

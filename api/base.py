@@ -2,6 +2,7 @@ import ormar
 from fastapi import Depends, Request, HTTPException, status
 from fastapi_utils.cbv import cbv
 from fastapi_utils.inferring_router import InferringRouter
+from uuid import UUID
 from abc import ABC
 from typing import Optional
 from core import (
@@ -37,6 +38,8 @@ class GenericAPIView:
         self.name = self.model.get_name(lower=True) if name is None else name
 
     async def list(self, request: Request, pagination: ItemsPerPage, params: BaseModel):
+        """Returned the Brief Details List of Entity Model with Pagination"""
+
         items = params.dict(exclude_none=True)
         count: int = await self.model.objects.filter(**items).count()
         paginate = DBPagination(url=request.url, total=count, paginations=pagination)
@@ -58,6 +61,8 @@ class GenericAPIView:
         }
 
     async def create(self, new_model: BaseModel):
+        """Create New Entity Model & Returned Primary Key UUID Response"""
+
         try:
             model = await self.perform_create(model_form=new_model)
         except Exception as e:
@@ -67,6 +72,23 @@ class GenericAPIView:
         return {
             "id": model.id,
         }
+    
+    async def retrieve(self, model: ormar.Model):
+        """Retrieve the Model Information Details by Get Primary Key in Path"""
+
+        return model
+
+    async def dependency(self, id: UUID) -> ormar.Model:
+        """Dependency to Get Model ID in Path URL & Returned Model Object if Exists"""
+
+        model: Optional[ormar.Model] = await self.model.objects.get_or_none(id=id)
+        if model is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"{self.name.title()} Not Found.",
+            )
+
+        return model
 
     async def perform_create(self, model_form: BaseModel) -> PrimaryKeyMixin:
         """Coroutine Method Called Before Create ORM Model to Override Generics"""
@@ -108,3 +130,22 @@ class GenericAPIView:
                 """Create New Entity Model & Returned Primary Key UUID Response"""
 
                 return await self.__parent.create(new_model=new_model)
+
+    def retrieve_update_destory(self, path: str = "/{id}/"):
+        """Generate Class Based View for List & Create API View Operations"""
+
+        @cbv(self.router)
+        class RetrieveUpdateDestroyAPIView(BaseAPIView):
+            """Class Based View Retrieve Update Destroy Operations for a Single Model"""
+
+            __parent = self
+            object: ormar.Model = Depends(self.dependency)
+
+            @__parent.router.get(
+                path,
+                status_code=status.HTTP_200_OK,
+            )
+            async def retrieve(self) -> __parent.schemas.Retrieve:
+                """Retrieve the Model Information Details by Get Primary Key in Path"""
+
+                return await self.__parent.retrieve(model=self.object)
