@@ -2,12 +2,12 @@ from pydantic import Field
 from uuid import UUID
 from datetime import date
 from typing import Optional, List
-from core import BaseModel, Pagination, UUIDSchema
+from core import BaseModel, Pagination, PrimaryKeySchema
 from .member import MemberBriefSchema
 from .project import ProjectBriefSchema
 
 
-class TaskBriefSchema(UUIDSchema):
+class TaskBriefSchema(PrimaryKeySchema):
     """Schema of the Brief Detials Task to Showing in Tasks List"""
 
     name: str = Field(min_length=3, max_length=64)

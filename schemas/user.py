@@ -8,9 +8,10 @@ from core import (
     settings,
     BaseModel,
     Pagination,
-    UUIDSchema,
     pwd_context,
     MOBILE_PATTERN,
+    PrimaryKeySchema,
+    ValidUpdateMixinSchema,
 )
 
 
@@ -20,7 +21,7 @@ def get_password_hash(password: str) -> str:
     return pwd_context.hash(secret=password)
 
 
-class UserBriefSchema(UUIDSchema):
+class UserBriefSchema(PrimaryKeySchema):
     """Schema of the Brief Detials User to Showing in Users List"""
 
     mobile: str
@@ -83,21 +84,35 @@ class UserOutDBSchema(UserBriefSchema, OptionalFieldSchema):
         """Validator to Added Base URL Prefix to Avatar Path Saved if not None"""
 
         if value is not None:
-            return f"{settings.BASE_URL}/{value}"
+            return settings.BASE_URL + value
 
 
-class UserUpdateSchema(OptionalFieldSchema, AvatarMixinSchema):
-    """Schema for Update User Fields All is Optional Items Remove Unsets"""
+class UserSelfUpdateSchema(
+    OptionalFieldSchema, AvatarMixinSchema, ValidUpdateMixinSchema
+):
+    """Schema for Update Self User Fields All is Optional Items Remove Unsets"""
 
     mobile: Optional[str] = Field(default=None, regex=MOBILE_PATTERN)
-    level: Optional[Level] = Field(default=None)
     is_active: Optional[bool] = Field(default=None)
+
+
+class UserUpdateSchema(UserSelfUpdateSchema):
+    """Schema for Update User Fields All is Optional Items Remove Unsets"""
+
+    level: Optional[Level] = Field(default=None)
 
 
 class UserListSchema(Pagination):
     """Schema of Users List with Pagination Items Count & Next & Previous"""
 
     results: List[UserBriefSchema] = Field(default=[])
+
+
+class UserFilterSchema(BaseModel):
+    """Schema to Filter User List by Query Parameters Value"""
+
+    level: Optional[Level] = Field(default=None)
+    is_active: Optional[bool] = Field(default=None)
 
 
 class AccessTokenSchema(BaseModel):

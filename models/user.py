@@ -2,22 +2,28 @@ import ormar
 import aiofiles
 from pydantic import EmailStr
 from pathlib import Path
-from uuid import UUID, uuid4
 from typing import Optional
-from core import settings, pwd_context, Level, MOBILE_PATTERN
+from core import (
+    Level,
+    settings,
+    pwd_context,
+    MOBILE_PATTERN,
+    PrimaryKeyMixin,
+    BaseModelSerializer,
+)
 from db import MainMeta
 from schemas import (
     UserListSchema,
     UserInDBSchema,
     UserOutDBSchema,
     UserUpdateSchema,
+    UserFilterSchema,
     ChangePasswordSchema,
 )
 
-class User(ormar.Model):
+class User(PrimaryKeyMixin, ormar.Model):
     """User Model Class to Implement Method for Operations of User Entity"""
 
-    id: UUID = ormar.UUID(uuid_format="string", primary_key=True, default=uuid4)
     mobile: str = ormar.String(unique=True, index=True, max_length=10, pattern=MOBILE_PATTERN)
     password: str = ormar.String(max_length=128)
     level: str = ormar.String(max_length=1, choices=list(Level), default=Level.STAFF.value)
@@ -49,6 +55,22 @@ class User(ormar.Model):
         """The Method for Verify Hash Password String Returned Boolean Value"""
 
         return pwd_context.verify(password, self.password)
+
+    async def edit(self, update_form: UserUpdateSchema) -> bool:
+        """Utility Method to Change and Update User Fields by Update Schema Fields"""
+
+        if update_form.mobile is not None:
+            if await self.__class__.objects.filter(mobile=update_form.mobile).exists():
+                return False
+
+        if update_form.avatar is not None:
+            update_form.avatar = await self.save_avatar(
+                phone_number=self.mobile,
+                avatar=update_form.base64_decoded(encoded_avatar=update_form.avatar)
+            )
+
+        await self.update(**update_form.dict(exclude_unset=True))
+        return True
 
     async def change_password(self, passwords: ChangePasswordSchema) -> bool:
         """Utility Method to Change User Password Returned Boolean Value Status"""
@@ -82,10 +104,15 @@ class User(ormar.Model):
     class Meta(MainMeta):
         pass
 
-    class Shcema:
-        """Inner Class for Contain Collection of Shcemas Use in Routes"""
 
+class UserSerializer(BaseModelSerializer):
+    """Serialzer Model Class for User ORM Model Class with Schemas"""
+
+    model = User
+
+    class Shcema(BaseModelSerializer.Shcema):
         List = UserListSchema
         Create = UserInDBSchema
         Retrieve = UserOutDBSchema
         PartialUpdate = UserUpdateSchema
+        Filter = UserFilterSchema

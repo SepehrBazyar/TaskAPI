@@ -1,10 +1,13 @@
+import ormar
 import orjson
 from pydantic import (
     Field,
+    root_validator,
     BaseModel as PydanticBaseModel,
 )
-from uuid import UUID
-from typing import Optional
+from abc import ABC
+from uuid import UUID, uuid4
+from typing import Optional, Dict, Any
 
 
 MOBILE_PATTERN = "^9\\d{9}$"
@@ -26,7 +29,7 @@ class SuccessfullSchema(BaseModel):
     status: bool = True
 
 
-class UUIDSchema(BaseModel):
+class PrimaryKeySchema(BaseModel):
     """Schema of UUID Primary Key Value for Response in Create New Entity"""
 
     id: UUID
@@ -46,3 +49,38 @@ class Pagination(BaseModel):
     next: Optional[str] = Field(default=None)
     previous: Optional[str] = Field(default=None)
     results: list = Field(default=[])
+
+
+class ValidUpdateMixinSchema(BaseModel):
+    """Mixin Schema to Root Validator for Check All Fields is not None"""
+
+    @root_validator(pre=True)
+    def check_all_not_none(cls, values: Dict[str, Optional[Any]]):
+        """Validator to Check All Fields is not None and a Field is Changes"""
+
+        for value in values.values():
+            if value is not None:
+                return values
+
+        raise ValueError("No Changes were Done.")
+
+
+class PrimaryKeyMixin:
+    """Mixin Class of UUID Primary Key Value for Response in Create New Entity"""
+
+    id: UUID = ormar.UUID(uuid_format="string", primary_key=True, default=uuid4)
+
+
+class BaseModelSerializer(ABC):
+    """Abstract Base Class to Collect ORM Model & Model Schemas Inner Class"""
+
+    model: ormar.Model
+
+    class Shcema:
+        """Inner Class for Contain Collection of Shcemas Use in Routes"""
+
+        List: BaseModel
+        Create: BaseModel
+        Retrieve: BaseModel
+        PartialUpdate: BaseModel
+        Filter: BaseModel = BaseModel

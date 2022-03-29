@@ -1,6 +1,6 @@
 from pydantic import Field
 from typing import Optional, List
-from core import BaseModel, Pagination, UUIDSchema
+from core import BaseModel, Pagination, PrimaryKeySchema
 from .user import UserBriefSchema
 
 
@@ -10,7 +10,7 @@ class TeamNameSchema(BaseModel):
     name: str = Field(min_length=3, max_length=64)
 
 
-class TeamBriefSchema(UUIDSchema, TeamNameSchema):
+class TeamBriefSchema(PrimaryKeySchema, TeamNameSchema):
     """Schema of the Brief Detials Team to Showing in Teams List"""
 
     pass
