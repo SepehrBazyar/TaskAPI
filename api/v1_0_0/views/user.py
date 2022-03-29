@@ -2,7 +2,7 @@ from fastapi import Depends, Body, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_utils.cbv import cbv
 from fastapi_utils.inferring_router import InferringRouter
-from core import jwt_auth, SuccessfullSchema
+from core import jwt_auth, Level, SuccessfullSchema
 from models import User, UserSerializer
 from schemas import (
     AccessTokenSchema,
@@ -10,7 +10,8 @@ from schemas import (
     UserSelfUpdateSchema,
     ChangePasswordSchema,
 )
-from api.base import BaseAPIView, GenericAPIView
+from decorators import check_user_level
+from generics import BaseAPIView, GenericAPIView
 
 
 router = InferringRouter()
@@ -19,14 +20,49 @@ router = InferringRouter()
 class UserGenericAPIView(GenericAPIView):
     """Generic Class Based Views for User Model Override Some of Methods"""
 
-    async def perform_create(self, model_form: UserSerializer.Shcema.Create) -> User:
+    __ERROR = "Phone Number Already Existed."
+
+    @check_user_level(Level.ADMIN)
+    async def list(self, request, pagination, params, **kwargs):
+        return await super().list(request, pagination, params, **kwargs)
+
+    @check_user_level(Level.ADMIN)
+    async def create(self, new_model, **kwargs):
+        return await super().create(new_model, **kwargs)
+
+    @check_user_level(Level.ADMIN)
+    async def retrieve(self, model, **kwargs):
+        return await super().retrieve(model, **kwargs)
+
+    @check_user_level(Level.ADMIN)
+    async def partial_update(self, model, fields, **kwargs):
+        return await super().partial_update(model, fields, **kwargs)
+
+    @check_user_level(Level.ADMIN)
+    async def destroy(self, model, **kwargs):
+        return await super().destroy(model, **kwargs)
+
+    async def pre_create(self, model_form: UserSerializer.Shcema.Create) -> User:
         """Perform Create Method Called Before Create & Use Sign Up User Method"""
 
         new_user = await User.sign_up(form=model_form)
-        if new_user is None:
-            raise ValueError("Phone Number Already Existed.")
+        if new_user is not None:
+            return new_user
 
-        return new_user
+        raise ValueError(self.__ERROR)
+
+    async def pre_update(
+        self,
+        model_object: User,
+        model_form: UserSerializer.Shcema.PartialUpdate,
+    ):
+        """Perform Update Method Called Before Update & to Path of Save PNG Avatar"""
+
+        flag = await model_object.edit(update_form=model_form)
+        if flag:
+            return flag
+
+        raise ValueError(self.__ERROR)
 
 
 generic = UserGenericAPIView(router, serializer=UserSerializer)

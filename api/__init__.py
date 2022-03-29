@@ -4,7 +4,6 @@ from .apps import (
 )
 
 
-latest = v1_0_0_router
-versions = [
+latest, versions = v1_0_0_router, [
     v1_0_0,
 ]
