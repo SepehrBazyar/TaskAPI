@@ -11,7 +11,7 @@ from schemas import (
     ChangePasswordSchema,
 )
 from decorators import check_user_level
-from api.base import BaseAPIView, GenericAPIView
+from generics import BaseAPIView, GenericAPIView
 
 
 router = InferringRouter()
