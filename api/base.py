@@ -60,10 +60,9 @@ class GenericAPIView:
     async def create(self, new_model: BaseModel):
         try:
             model = await self.perform_create(model_form=new_model)
-        except Exception:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="Insert Data Failed."
-            )
+        except Exception as e:
+            detail: str = e.args[0] if e.args else "Insert Data Failed."
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=detail)
 
         return {
             "id": model.id,
