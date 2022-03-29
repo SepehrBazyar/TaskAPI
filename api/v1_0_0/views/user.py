@@ -40,7 +40,7 @@ class UserGenericAPIView(GenericAPIView):
     async def destroy(self, model, **kwargs):
         return await super().destroy(model, **kwargs)
 
-    async def perform_create(self, model_form: UserSerializer.Shcema.Create) -> User:
+    async def pre_create(self, model_form: UserSerializer.Shcema.Create) -> User:
         """Perform Create Method Called Before Create & Use Sign Up User Method"""
 
         new_user = await User.sign_up(form=model_form)

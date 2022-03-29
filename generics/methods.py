@@ -38,7 +38,7 @@ class MethodGenericAPIView(PreGenericAPIView):
         """Create New Entity Model & Returned Primary Key UUID Response"""
 
         try:
-            model = await self.perform_create(model_form=new_model)
+            model = await self.pre_create(model_form=new_model)
         except Exception as e:
             detail: str = e.args[0] if e.args else "Insert Data Failed."
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=detail)
