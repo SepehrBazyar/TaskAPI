@@ -79,6 +79,12 @@ class GenericAPIView:
 
         return model
 
+    async def partial_update(self, model: ormar.Model, updates: BaseModel) -> bool:
+        """Partial Updated the Model Fields with ID Primary Key in Path URL"""
+
+        await model.update(**updates.dict(exclude_unset=True))
+        return True
+
     async def destroy(self, model: ormar.Model) -> bool:
         """Delete the Model from Database Table with Primary Key in Path URL"""
 
@@ -156,6 +162,20 @@ class GenericAPIView:
                 """Retrieve the Model Information Details by Get Primary Key in Path"""
 
                 return await self.__parent.retrieve(model=self.object)
+
+            @__parent.router.patch(
+                path,
+                status_code=status.HTTP_200_OK,
+            )
+            async def partial_update(
+                self, updates: __parent.schemas.PartialUpdate
+            ) -> SuccessfullSchema:
+                """Partial Updated the Model Fields with ID Primary Key in Path URL"""
+
+                flag = await self.__parent.partial_update(model=self.object, updates=updates)
+                return {
+                    "status": flag,
+                }
 
             @__parent.router.delete(
                 path,
