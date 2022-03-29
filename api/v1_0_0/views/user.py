@@ -24,6 +24,22 @@ class UserGenericAPIView(GenericAPIView):
     async def list(self, request, pagination, params, **kwargs):
         return await super().list(request, pagination, params, **kwargs)
 
+    @check_user_level(Level.ADMIN)
+    async def create(self, new_model, **kwargs):
+        return await super().create(new_model, **kwargs)
+
+    @check_user_level(Level.ADMIN)
+    async def retrieve(self, model, **kwargs):
+        return await super().retrieve(model, **kwargs)
+
+    @check_user_level(Level.ADMIN)
+    async def partial_update(self, model, updates, **kwargs):
+        return await super().partial_update(model, updates, **kwargs)
+
+    @check_user_level(Level.ADMIN)
+    async def destroy(self, model, **kwargs):
+        return await super().destroy(model, **kwargs)
+
     async def perform_create(self, model_form: UserSerializer.Shcema.Create) -> User:
         """Perform Create Method Called Before Create & Use Sign Up User Method"""
 
