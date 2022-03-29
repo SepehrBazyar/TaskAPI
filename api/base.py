@@ -38,7 +38,13 @@ class GenericAPIView:
         self.model, self.schemas = serializer.model, serializer.Shcema
         self.name = self.model.get_name(lower=True) if name is None else name
 
-    async def list(self, request: Request, pagination: ItemsPerPage, params: BaseModel):
+    async def list(
+        self,
+        request: Request,
+        pagination: ItemsPerPage,
+        params: BaseModel,
+        **kwargs,
+    ):
         """Returned the Brief Details List of Entity Model with Pagination"""
 
         items = params.dict(exclude_none=True)
@@ -61,7 +67,7 @@ class GenericAPIView:
             "results": await queryset.all(),
         }
 
-    async def create(self, new_model: BaseModel):
+    async def create(self, new_model: BaseModel, **kwargs):
         """Create New Entity Model & Returned Primary Key UUID Response"""
 
         try:
@@ -74,18 +80,23 @@ class GenericAPIView:
             "id": model.id,
         }
     
-    async def retrieve(self, model: ormar.Model):
+    async def retrieve(self, model: ormar.Model, **kwargs):
         """Retrieve the Model Information Details by Get Primary Key in Path"""
 
         return model
 
-    async def partial_update(self, model: ormar.Model, updates: BaseModel) -> bool:
+    async def partial_update(
+        self,
+        model: ormar.Model,
+        updates: BaseModel,
+        **kwargs,
+    ) -> bool:
         """Partial Updated the Model Fields with ID Primary Key in Path URL"""
 
         await model.update(**updates.dict(exclude_unset=True))
         return True
 
-    async def destroy(self, model: ormar.Model) -> bool:
+    async def destroy(self, model: ormar.Model, **kwargs) -> bool:
         """Delete the Model from Database Table with Primary Key in Path URL"""
 
         await model.delete()
@@ -130,7 +141,10 @@ class GenericAPIView:
                 """Returned the Brief Details List of Entity Model with Pagination"""
 
                 return await self.__parent.list(
-                    request=request, pagination=pagination, params=params
+                    request=request,
+                    pagination=pagination,
+                    params=params,
+                    current_user=self.current_user,
                 )
 
             @__parent.router.post(
@@ -142,7 +156,10 @@ class GenericAPIView:
             ) -> PrimaryKeySchema:
                 """Create New Entity Model & Returned Primary Key UUID Response"""
 
-                return await self.__parent.create(new_model=new_model)
+                return await self.__parent.create(
+                    new_model=new_model,
+                    current_user=self.current_user,
+                )
 
     def retrieve_update_destory(self, path: str = "/{id}/"):
         """Generate Class Based View for List & Create API View Operations"""
@@ -161,7 +178,10 @@ class GenericAPIView:
             async def retrieve(self) -> __parent.schemas.Retrieve:
                 """Retrieve the Model Information Details by Get Primary Key in Path"""
 
-                return await self.__parent.retrieve(model=self.object)
+                return await self.__parent.retrieve(
+                    model=self.object,
+                    current_user=self.current_user,
+                )
 
             @__parent.router.patch(
                 path,
@@ -172,7 +192,12 @@ class GenericAPIView:
             ) -> SuccessfullSchema:
                 """Partial Updated the Model Fields with ID Primary Key in Path URL"""
 
-                flag = await self.__parent.partial_update(model=self.object, updates=updates)
+                flag = await self.__parent.partial_update(
+                    model=self.object,
+                    updates=updates,
+                    current_user=self.current_user,
+                )
+
                 return {
                     "status": flag,
                 }
@@ -184,7 +209,11 @@ class GenericAPIView:
             async def destroy(self) -> SuccessfullSchema:
                 """Delete the Model from Database Table with Primary Key in Path URL"""
 
-                flag = await self.__parent.destroy(model=self.object)
+                flag = await self.__parent.destroy(
+                    model=self.object,
+                    current_user=self.current_user,
+                )
+
                 return {
                     "status": flag,
                 }

@@ -12,9 +12,13 @@ def check_user_level(*levels: Level):
 
         @wraps(function)
         async def wrapper(*args, **kwargs):
-            current_user: User = getattr(kwargs.get("self"), "current_user")
-            if current_user.level_ is levels:
-                return await function(*args, **kwargs)
+            try:
+                current_user: User = kwargs.pop("current_user")
+            except KeyError:
+                pass
+            else:
+                if current_user.level_ in levels:
+                    return await function(*args, **kwargs)
 
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN, detail="Permission Denied."

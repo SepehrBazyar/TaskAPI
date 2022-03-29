@@ -2,7 +2,7 @@ from fastapi import Depends, Body, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_utils.cbv import cbv
 from fastapi_utils.inferring_router import InferringRouter
-from core import jwt_auth, SuccessfullSchema
+from core import jwt_auth, Level, SuccessfullSchema
 from models import User, UserSerializer
 from schemas import (
     AccessTokenSchema,
@@ -10,6 +10,7 @@ from schemas import (
     UserSelfUpdateSchema,
     ChangePasswordSchema,
 )
+from decorators import check_user_level
 from api.base import BaseAPIView, GenericAPIView
 
 
@@ -18,6 +19,10 @@ router = InferringRouter()
 
 class UserGenericAPIView(GenericAPIView):
     """Generic Class Based Views for User Model Override Some of Methods"""
+
+    @check_user_level(Level.ADMIN)
+    async def list(self, request, pagination, params, **kwargs):
+        return await super().list(request, pagination, params, **kwargs)
 
     async def perform_create(self, model_form: UserSerializer.Shcema.Create) -> User:
         """Perform Create Method Called Before Create & Use Sign Up User Method"""
