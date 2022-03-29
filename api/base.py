@@ -11,6 +11,7 @@ from core import (
     DBPagination,
     PrimaryKeyMixin,
     PrimaryKeySchema,
+    SuccessfullSchema,
     BaseModelSerializer,
 )
 from models import User
@@ -77,6 +78,12 @@ class GenericAPIView:
         """Retrieve the Model Information Details by Get Primary Key in Path"""
 
         return model
+
+    async def destroy(self, model: ormar.Model) -> bool:
+        """Delete the Model from Database Table with Primary Key in Path URL"""
+
+        await model.delete()
+        return True
 
     async def dependency(self, id: UUID) -> ormar.Model:
         """Dependency to Get Model ID in Path URL & Returned Model Object if Exists"""
@@ -149,3 +156,15 @@ class GenericAPIView:
                 """Retrieve the Model Information Details by Get Primary Key in Path"""
 
                 return await self.__parent.retrieve(model=self.object)
+
+            @__parent.router.delete(
+                path,
+                status_code=status.HTTP_200_OK,
+            )
+            async def destroy(self) -> SuccessfullSchema:
+                """Delete the Model from Database Table with Primary Key in Path URL"""
+
+                flag = await self.__parent.destroy(model=self.object)
+                return {
+                    "status": flag,
+                }
