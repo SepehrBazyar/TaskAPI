@@ -20,6 +20,8 @@ router = InferringRouter()
 class UserGenericAPIView(GenericAPIView):
     """Generic Class Based Views for User Model Override Some of Methods"""
 
+    __ERROR = "Phone Number Already Existed."
+
     @check_user_level(Level.ADMIN)
     async def list(self, request, pagination, params, **kwargs):
         return await super().list(request, pagination, params, **kwargs)
@@ -33,8 +35,8 @@ class UserGenericAPIView(GenericAPIView):
         return await super().retrieve(model, **kwargs)
 
     @check_user_level(Level.ADMIN)
-    async def partial_update(self, model, updates, **kwargs):
-        return await super().partial_update(model, updates, **kwargs)
+    async def partial_update(self, model, fields, **kwargs):
+        return await super().partial_update(model, fields, **kwargs)
 
     @check_user_level(Level.ADMIN)
     async def destroy(self, model, **kwargs):
@@ -44,10 +46,23 @@ class UserGenericAPIView(GenericAPIView):
         """Perform Create Method Called Before Create & Use Sign Up User Method"""
 
         new_user = await User.sign_up(form=model_form)
-        if new_user is None:
-            raise ValueError("Phone Number Already Existed.")
+        if new_user is not None:
+            return new_user
 
-        return new_user
+        raise ValueError(self.__ERROR)
+
+    async def pre_update(
+        self,
+        model_object: User,
+        model_form: UserSerializer.Shcema.PartialUpdate,
+    ):
+        """Perform Update Method Called Before Update & to Path of Save PNG Avatar"""
+
+        flag = await model_object.edit(update_form=model_form)
+        if flag:
+            return flag
+
+        raise ValueError(self.__ERROR)
 
 
 generic = UserGenericAPIView(router, serializer=UserSerializer)

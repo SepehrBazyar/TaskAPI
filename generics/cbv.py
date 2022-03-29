@@ -92,13 +92,13 @@ class GenericAPIView(MethodGenericAPIView):
                 status_code=status.HTTP_200_OK,
             )
             async def partial_update(
-                self, updates: __parent.schemas.PartialUpdate
+                self, fields: __parent.schemas.PartialUpdate
             ) -> SuccessfullSchema:
                 """Partial Updated the Model Fields with ID Primary Key in Path URL"""
 
                 flag = await self.__parent.partial_update(
                     model=self.object,
-                    updates=updates,
+                    fields=fields,
                     current_user=self.current_user,
                 )
 

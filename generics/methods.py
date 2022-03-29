@@ -50,21 +50,26 @@ class MethodGenericAPIView(PreGenericAPIView):
     async def retrieve(self, model: ormar.Model, **kwargs):
         """Retrieve the Model Information Details by Get Primary Key in Path"""
 
-        return model
+        return await self.pre_retrieve(model_object=model)
 
     async def partial_update(
         self,
         model: ormar.Model,
-        updates: BaseModel,
+        fields: BaseModel,
         **kwargs,
     ) -> bool:
         """Partial Updated the Model Fields with ID Primary Key in Path URL"""
 
-        await model.update(**updates.dict(exclude_unset=True))
+        try:
+            await self.pre_update(model_object=model, model_form=fields)
+        except Exception as e:
+            detail: str = e.args[0] if e.args else "Update Data Failed."
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=detail)
+
         return True
 
     async def destroy(self, model: ormar.Model, **kwargs) -> bool:
         """Delete the Model from Database Table with Primary Key in Path URL"""
 
-        await model.delete()
+        await self.pre_destroy(model_object=model)
         return True
