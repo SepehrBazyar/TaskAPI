@@ -25,9 +25,7 @@ class MethodGenericAPIView(PreGenericAPIView):
             )
 
         next, previous = await paginate.next_and_previous()
-        queryset: ormar.QuerySet = (
-            self.model.objects.filter(**items).offset(paginate.skip).limit(paginate.size)
-        )
+        queryset = await self.pre_list(paginate=paginate, **items)
 
         return {
             "count": count,
