@@ -9,15 +9,11 @@ from core import (
     pwd_context,
     MOBILE_PATTERN,
     PrimaryKeyMixin,
-    BaseModelSerializer,
 )
 from db import MainMeta
 from schemas import (
-    UserListSchema,
     UserInDBSchema,
-    UserOutDBSchema,
     UserUpdateSchema,
-    UserFilterSchema,
     ChangePasswordSchema,
 )
 
@@ -103,16 +99,3 @@ class User(PrimaryKeyMixin, ormar.Model):
 
     class Meta(MainMeta):
         pass
-
-
-class UserSerializer(BaseModelSerializer):
-    """Serialzer Model Class for User ORM Model Class with Schemas"""
-
-    model: User = User
-
-    class Shcema(BaseModelSerializer.Shcema):
-        List = UserListSchema
-        Create = UserInDBSchema
-        Retrieve = UserOutDBSchema
-        PartialUpdate = UserUpdateSchema
-        Filter = UserFilterSchema

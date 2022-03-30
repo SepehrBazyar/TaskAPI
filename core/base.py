@@ -69,18 +69,3 @@ class PrimaryKeyMixin:
     """Mixin Class of UUID Primary Key Value for Response in Create New Entity"""
 
     id: UUID = ormar.UUID(uuid_format="string", primary_key=True, default=uuid4)
-
-
-class BaseModelSerializer(ABC):
-    """Abstract Base Class to Collect ORM Model & Model Schemas Inner Class"""
-
-    model: ormar.Model
-
-    class Shcema:
-        """Inner Class for Contain Collection of Shcemas Use in Routes"""
-
-        List: BaseModel
-        Create: BaseModel
-        Retrieve: BaseModel
-        PartialUpdate: BaseModel
-        Filter: BaseModel = BaseModel

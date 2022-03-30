@@ -6,7 +6,6 @@ from .base import (
     PrimaryKeyMixin,
     PrimaryKeySchema,
     SuccessfullSchema,
-    BaseModelSerializer,
     ValidUpdateMixinSchema,
 )
 from .config import settings

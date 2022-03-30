@@ -1,8 +1,6 @@
-from .user import generic as user_generic
-from .team import generic as team_generic
+from .user_test import UserAPIView
 
 
-generics = [
-    user_generic,
-    team_generic,
+cbvs = [
+    UserAPIView,
 ]

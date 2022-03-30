@@ -1,13 +1,7 @@
 import ormar
 from datetime import date
-from core import Role, PrimaryKeyMixin, BaseModelSerializer
+from core import Role, PrimaryKeyMixin
 from db import MainMeta
-from schemas import (
-    MemberListSchema,
-    MemberInDBSchema,
-    MemberOutDBSchema,
-    MemberUpdateSchema,
-)
 
 
 class TeamUser(PrimaryKeyMixin, ormar.Model):
@@ -31,15 +25,3 @@ class TeamUser(PrimaryKeyMixin, ormar.Model):
         constraints = [
             ormar.UniqueColumns("user_id", "team_id"),
         ]
-
-
-class MemberSerializer(BaseModelSerializer):
-    """Serialzer Model Class for Member ORM Model Class with Schemas"""
-
-    model = TeamUser
-
-    class Shcema(BaseModelSerializer.Shcema):
-        List = MemberListSchema
-        Create = MemberInDBSchema
-        Retrieve = MemberOutDBSchema
-        PartialUpdate = MemberUpdateSchema

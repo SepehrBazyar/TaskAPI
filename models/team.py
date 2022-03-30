@@ -1,13 +1,8 @@
 import ormar
 from typing import Optional
-from core import Role, PrimaryKeyMixin, BaseModelSerializer
+from core import Role, PrimaryKeyMixin
 from db import MainMeta
-from schemas import (
-    TeamListSchema,
-    TeamInDBSchema,
-    TeamOutDBSchema,
-    TeamUpdateSchema,
-)
+from schemas import TeamInDBSchema
 from .user import User
 from .member import TeamUser
 
@@ -35,15 +30,3 @@ class Team(PrimaryKeyMixin, ormar.Model):
 
     class Meta(MainMeta):
         pass
-
-
-class TeamSerializer(BaseModelSerializer):
-    """Serialzer Model Class for Team ORM Model Class with Schemas"""
-
-    model: Team = Team
-
-    class Shcema(BaseModelSerializer.Shcema):
-        List = TeamListSchema
-        Create = TeamInDBSchema
-        Retrieve = TeamOutDBSchema
-        PartialUpdate = TeamUpdateSchema

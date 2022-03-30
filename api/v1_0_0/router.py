@@ -1,11 +1,9 @@
 from fastapi import APIRouter
-from .views import generics
+from .views import cbvs
 
 
 router = APIRouter()
 
 
-for generic in generics:
-    router.include_router(
-        generic.router, prefix=f"/{generic.name}", tags=[generic.name]
-    )
+for cbv in cbvs:
+    router.include_router(cbv.router, prefix=f"/{cbv.name}", tags=[cbv.name])
