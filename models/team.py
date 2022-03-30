@@ -1,5 +1,5 @@
 import ormar
-from core import PrimaryKeyMixin
+from core import PrimaryKeyMixin, BaseModelSerializer
 from db import MainMeta
 from schemas import (
     TeamListSchema,
@@ -26,9 +26,13 @@ class Team(PrimaryKeyMixin, ormar.Model):
     class Meta(MainMeta):
         pass
 
-    class Shcema:
-        """Inner Class for Contain Collection of Shcemas Use in Routes"""
 
+class TeamSerializer(BaseModelSerializer):
+    """Serialzer Model Class for Team ORM Model Class with Schemas"""
+
+    model = Team
+
+    class Shcema(BaseModelSerializer.Shcema):
         List = TeamListSchema
         Create = TeamInDBSchema
         Retrieve = TeamOutDBSchema
