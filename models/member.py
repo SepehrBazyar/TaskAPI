@@ -16,6 +16,7 @@ class TeamUser(PrimaryKeyMixin, ormar.Model):
     role: str = ormar.String(max_length=1, choices=list(Role), default=Role.EMPLOYEE.value)
     joined_at: date = ormar.Date(default=date.today)
 
+    # Foreign Keys
     user_id = ormar.UUID(uuid_format="string")
     team_id = ormar.UUID(uuid_format="string")
 

@@ -15,6 +15,7 @@ class Team(PrimaryKeyMixin, ormar.Model):
     """Team Model Class to Implement Method for Operations of Team Entity"""
 
     name: str = ormar.String(unique=True, max_length=64)
+    creator: User = ormar.ForeignKey(to=User, skip_reverse=True, related_name="+")
     members = ormar.ManyToMany(
         to=User,
         through=TeamUser,
