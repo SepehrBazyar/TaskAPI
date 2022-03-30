@@ -14,7 +14,7 @@ class PreGenericAPIView(BaseGenericAPIView):
             .offset(paginate.skip).limit(paginate.size)
         )
 
-    async def pre_create(self, model_form: BaseModel) -> PrimaryKeyMixin:
+    async def pre_create(self, model_form: BaseModel, **kwargs) -> PrimaryKeyMixin:
         """Coroutine Method Called Before Create ORM Model to Override Generics"""
 
         return await self.model.objects.create(**model_form.dict())

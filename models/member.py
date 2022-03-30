@@ -1,6 +1,6 @@
 import ormar
 from datetime import date
-from core import Role, PrimaryKeyMixin
+from core import Role, PrimaryKeyMixin, BaseModelSerializer
 from db import MainMeta
 from schemas import (
     MemberListSchema,
@@ -32,9 +32,13 @@ class TeamUser(PrimaryKeyMixin, ormar.Model):
             ormar.UniqueColumns("user_id", "team_id"),
         ]
 
-    class Shcema:
-        """Inner Class for Contain Collection of Shcemas Use in Routes"""
 
+class MemberSerializer(BaseModelSerializer):
+    """Serialzer Model Class for Member ORM Model Class with Schemas"""
+
+    model = TeamUser
+
+    class Shcema(BaseModelSerializer.Shcema):
         List = MemberListSchema
         Create = MemberInDBSchema
         Retrieve = MemberOutDBSchema

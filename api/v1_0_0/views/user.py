@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_utils.cbv import cbv
 from fastapi_utils.inferring_router import InferringRouter
 from core import jwt_auth, Level, SuccessfullSchema
-from models import User, UserSerializer
+from models import UserSerializer
 from schemas import (
     AccessTokenSchema,
     RefreshTokenSchema,
@@ -42,10 +42,13 @@ class UserGenericAPIView(GenericAPIView):
     async def destroy(self, model, **kwargs):
         return await super().destroy(model, **kwargs)
 
-    async def pre_create(self, model_form: UserSerializer.Shcema.Create) -> User:
+    async def pre_create(
+        self,
+        model_form: UserSerializer.Shcema.Create,
+    ) -> UserSerializer.model:
         """Perform Create Method Called Before Create & Use Sign Up User Method"""
 
-        new_user = await User.sign_up(form=model_form)
+        new_user = await UserSerializer.model.sign_up(form=model_form)
         if new_user is not None:
             return new_user
 
@@ -53,7 +56,7 @@ class UserGenericAPIView(GenericAPIView):
 
     async def pre_update(
         self,
-        model_object: User,
+        model_object: UserSerializer.model,
         model_form: UserSerializer.Shcema.PartialUpdate,
     ):
         """Perform Update Method Called Before Update & to Path of Save PNG Avatar"""
@@ -77,7 +80,9 @@ async def login(
 ) -> RefreshTokenSchema:
     """Authorize View Get Username & Password to Login User Returned JWT Token"""
 
-    user = await User.objects.get_or_none(mobile=form.username, is_active=True)
+    user = await UserSerializer.model.objects.get_or_none(
+        mobile=form.username, is_active=True
+    )
     if user is not None and await user.sign_in(password=form.password):
         return {
             "access_token": await jwt_auth.create_access_token(user_id=user.id),

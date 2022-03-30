@@ -1,5 +1,6 @@
 import ormar
-from core import PrimaryKeyMixin, BaseModelSerializer
+from typing import Optional
+from core import Role, PrimaryKeyMixin, BaseModelSerializer
 from db import MainMeta
 from schemas import (
     TeamListSchema,
@@ -23,6 +24,15 @@ class Team(PrimaryKeyMixin, ormar.Model):
         through_reverse_relation_name="user_id",
     )
 
+    @classmethod
+    async def found(cls, form: TeamInDBSchema, creator: User) -> Optional["Team"]:
+        """Found method to Create New Team with User Owner in Members List"""
+
+        if not await cls.objects.filter(name=form.name).exists():
+            team = await cls.objects.create(creator=creator, **form.dict())
+            await team.members.add(creator, role=Role.OWNER)
+            return team
+
     class Meta(MainMeta):
         pass
 
@@ -30,7 +40,7 @@ class Team(PrimaryKeyMixin, ormar.Model):
 class TeamSerializer(BaseModelSerializer):
     """Serialzer Model Class for Team ORM Model Class with Schemas"""
 
-    model = Team
+    model: Team = Team
 
     class Shcema(BaseModelSerializer.Shcema):
         List = TeamListSchema

@@ -108,7 +108,7 @@ class User(PrimaryKeyMixin, ormar.Model):
 class UserSerializer(BaseModelSerializer):
     """Serialzer Model Class for User ORM Model Class with Schemas"""
 
-    model = User
+    model: User = User
 
     class Shcema(BaseModelSerializer.Shcema):
         List = UserListSchema
