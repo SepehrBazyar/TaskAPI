@@ -8,14 +8,19 @@ from schemas import (
     TeamUpdateSchema,
 )
 from .user import User
-from .member import UserTeam
+from .member import TeamUser
 
 
 class Team(PrimaryKeyMixin, ormar.Model):
     """Team Model Class to Implement Method for Operations of Team Entity"""
 
     name: str = ormar.String(unique=True, max_length=64)
-    members = ormar.ManyToMany(to=User, through=UserTeam)
+    members = ormar.ManyToMany(
+        to=User,
+        through=TeamUser,
+        through_relation_name="team_id",
+        through_reverse_relation_name="user_id",
+    )
 
     class Meta(MainMeta):
         pass

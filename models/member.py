@@ -1,5 +1,4 @@
 import ormar
-from uuid import UUID
 from datetime import date
 from core import Role, PrimaryKeyMixin
 from db import MainMeta
@@ -11,13 +10,14 @@ from schemas import (
 )
 
 
-class UserTeam(PrimaryKeyMixin, ormar.Model):
+class TeamUser(PrimaryKeyMixin, ormar.Model):
     """User Team Model Class to Implement Method for Operations of Member Entity"""
 
-    user: UUID = ormar.UUID(uuid_format="string")
-    team: UUID = ormar.UUID(uuid_format="string")
     role: str = ormar.String(max_length=1, choices=list(Role), default=Role.EMPLOYEE.value)
     joined_at: date = ormar.Date(default=date.today)
+
+    user_id = ormar.UUID(uuid_format="string")
+    team_id = ormar.UUID(uuid_format="string")
 
     @ormar.property_field
     def role_(self) -> Role:
@@ -28,7 +28,7 @@ class UserTeam(PrimaryKeyMixin, ormar.Model):
     class Meta(MainMeta):
         tablename = "members"
         constraints = [
-            ormar.UniqueColumns("user", "team"),
+            ormar.UniqueColumns("user_id", "team_id"),
         ]
 
     class Shcema:
