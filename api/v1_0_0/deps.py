@@ -46,7 +46,7 @@ async def get_user(user_id: UUID) -> User:
 async def get_team(team_id: UUID) -> Team:
     """Dependency to Get User ID in Path URL & Returned User Object if Exists"""
 
-    team = await Team.objects.get_or_none(id=team_id)
+    team = await Team.objects.select_related(Team.creator).get_or_none(id=team_id)
     if team is not None:
         return team
 
