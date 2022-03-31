@@ -10,7 +10,7 @@ from core import (
     DBPagination,
     oauth2_schema,
 )
-from models import User
+from models import User, Team
 
 
 async def get_current_user(token: str = Depends(oauth2_schema)) -> User:
@@ -40,6 +40,18 @@ async def get_user(user_id: UUID) -> User:
 
     raise HTTPException(
         status_code=status.HTTP_404_NOT_FOUND, detail="User Not Found."
+    )
+
+
+async def get_team(team_id: UUID) -> Team:
+    """Dependency to Get User ID in Path URL & Returned User Object if Exists"""
+
+    team = await Team.objects.get_or_none(id=team_id)
+    if team is not None:
+        return team
+
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND, detail="Team Not Found."
     )
 
 

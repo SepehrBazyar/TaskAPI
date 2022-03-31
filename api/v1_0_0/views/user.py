@@ -113,15 +113,12 @@ class UserListCreateAPIView(UserAPIView):
         status_code=status.HTTP_201_CREATED,
     )
     @check_user_level(Level.ADMIN)
-    async def create(
-        self,
-        new_user: UserInDBSchema,
-    ) -> PrimaryKeySchema:
+    async def create(self, user_form: UserInDBSchema) -> PrimaryKeySchema:
         """Registering New User Model with Sign Up & Returned Primary Key UUID"""
 
-        user = await self.model.sign_up(form=new_user)
-        if user is not None:
-            return user
+        new_user = await self.model.sign_up(form=user_form)
+        if new_user is not None:
+            return new_user
 
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
