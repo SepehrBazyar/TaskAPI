@@ -8,7 +8,7 @@ from core import (
     PrimaryKeySchema,
     SuccessfullSchema,
 )
-from models import Team, TeamUser
+from models import User, Team, TeamUser
 from schemas import (
     TeamListSchema,
     TeamInDBSchema,
@@ -187,12 +187,19 @@ class MemberListCreateAPIView(MemberAPIView):
     async def create(self, member_form: MemberInDBSchema) -> SuccessfullSchema:
         """Added New Member Model to a Team Entity & Returned Primary Key UUID"""
 
-        member_fields = member_form.dict(exclude={"user_id"})
-        try:
-            await self.team.members.add(member_form.user_id, **member_fields)
-        except Exception:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="Add Member Failed."
-            )
+        user = await User.objects.get_or_none(id=member_form.user_id)
+        if user is not None:
+            try:
+                await self.team.members.add(
+                    item=user,
+                    **member_form.dict(exclude={"user_id"}),
+                )
+            except Exception:
+                detail = "Failed to Add Member."
+            else:
+                return SuccessfullSchema()
+
         else:
-            return SuccessfullSchema()
+            detail = "This User does not Exist."
+
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=detail)
