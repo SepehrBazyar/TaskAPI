@@ -9,15 +9,11 @@ from core import (
     pwd_context,
     MOBILE_PATTERN,
     PrimaryKeyMixin,
-    BaseModelSerializer,
 )
 from db import MainMeta
 from schemas import (
-    UserListSchema,
     UserInDBSchema,
-    UserOutDBSchema,
     UserUpdateSchema,
-    UserFilterSchema,
     ChangePasswordSchema,
 )
 
@@ -30,7 +26,7 @@ class User(PrimaryKeyMixin, ormar.Model):
     email: Optional[EmailStr] = ormar.String(max_length=255, nullable=True, default=None)
     avatar: Optional[str] = ormar.String(max_length=255, nullable=True, default=None)
     fullname: Optional[str] = ormar.String(max_length=64, nullable=True, default=None)
-    is_active: bool = ormar.Boolean(index=True, default=True)
+    is_active: bool = ormar.Boolean(index=True, nullable=False, default=True)
 
     @ormar.property_field
     def level_(self) -> Level:
@@ -103,16 +99,3 @@ class User(PrimaryKeyMixin, ormar.Model):
 
     class Meta(MainMeta):
         pass
-
-
-class UserSerializer(BaseModelSerializer):
-    """Serialzer Model Class for User ORM Model Class with Schemas"""
-
-    model = User
-
-    class Shcema(BaseModelSerializer.Shcema):
-        List = UserListSchema
-        Create = UserInDBSchema
-        Retrieve = UserOutDBSchema
-        PartialUpdate = UserUpdateSchema
-        Filter = UserFilterSchema
