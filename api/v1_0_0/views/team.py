@@ -229,6 +229,24 @@ class MemberRetrieveUpdateDestroyAPIView(MemberAPIView):
         return self.member
 
 
+    @router.patch(
+        __PATH,
+        status_code=status.HTTP_200_OK,
+    )
+    @check_member_role_access
+    async def partial_update(self, fields: MemberUpdateSchema) -> SuccessfullSchema:
+        """Updated the Member Information Detail with ID Primary Key in Path URL"""
+
+        try:
+            await self.member.update(**fields.dict(exclude_unset=True))
+        except Exception:
+            detail = "Update Data Failed."
+        else:
+            return SuccessfullSchema()
+
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=detail)
+
+
     @router.delete(
         __PATH,
         status_code=status.HTTP_200_OK,
