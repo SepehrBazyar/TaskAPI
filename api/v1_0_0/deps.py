@@ -63,6 +63,7 @@ async def get_member(team_id: UUID, user_id: UUID) -> TeamUser:
     """Dependency Get Team & User ID in Path URL & Returned Member Object if Exists"""
 
     queryset = TeamUser.objects.select_related(TeamUser.user)
+
     member = await queryset.get_or_none(team=team_id, user=user_id)
     if member is not None:
         return member

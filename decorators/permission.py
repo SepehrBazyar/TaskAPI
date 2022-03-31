@@ -59,3 +59,28 @@ def check_member_role_team(*roles: Role):
         return wrapper
 
     return decorator
+
+
+def check_member_role_access(function: Callable):
+    """Check User Requested with Current User Else Raised HTTPException"""
+
+    @wraps(function)
+    async def wrapper(*args, **kwargs):
+        self = kwargs.get("self")
+        try:
+            current_user: User = getattr(self, "current_user")
+            member: TeamUser = getattr(self, "member")
+        except AttributeError:
+            pass
+        else:
+            current_member = await TeamUser.objects.get_or_none(
+                team=member.team, user=current_user
+            )
+            if current_member is not None and current_member.role_ >= member.role_:
+                return await function(*args, **kwargs)
+
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Permission Denied."
+        )
+
+    return wrapper

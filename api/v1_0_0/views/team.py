@@ -23,6 +23,7 @@ from schemas import (
 from decorators import (
     check_user_level,
     check_member_role_team,
+    check_member_role_access,
 )
 from ..deps import (
     get_team,
@@ -221,6 +222,7 @@ class MemberRetrieveUpdateDestroyAPIView(MemberAPIView):
         __PATH,
         status_code=status.HTTP_200_OK,
     )
+    @check_member_role_access
     async def retrieve(self) -> MemberOutDBSchema:
         """Retrieve the Member Information Details by Get Primary Key ID in Path"""
 
