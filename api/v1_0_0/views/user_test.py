@@ -149,13 +149,10 @@ class UserSelfAPIView(UserAPIView):
         __PATH,
         status_code=status.HTTP_200_OK,
     )
-    async def edit_profile(
-        self,
-        updated_user: UserSelfUpdateSchema,
-    ) -> SuccessfullSchema:
+    async def edit_profile(self, fields: UserSelfUpdateSchema) -> SuccessfullSchema:
         """Edit the Profile Detail Item Fields of this Current User"""
 
-        flag = await self.current_user.edit(update_form=updated_user)
+        flag = await self.current_user.edit(update_form=fields)
         if flag:
             return SuccessfullSchema()
 
@@ -199,3 +196,32 @@ class UserRetrieveUpdateDestroyAPIView(UserAPIView):
         """Retrieve the User Information Details by Get Primary Key ID in Path"""
 
         return self.user
+
+
+    @router.patch(
+        __PATH,
+        status_code=status.HTTP_200_OK,
+    )
+    @check_user_level(Level.ADMIN)
+    async def partial_update(self, fields: UserUpdateSchema) -> SuccessfullSchema:
+        """Updated the User Information Detail with ID Primary Key in Path URL"""
+
+        flag = await self.user.edit(update_form=fields)
+        if flag:
+            return SuccessfullSchema()
+
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Update Data Failed."
+        )
+
+
+    @router.delete(
+        __PATH,
+        status_code=status.HTTP_200_OK,
+    )
+    @check_user_level(Level.ADMIN)
+    async def destroy(self) -> SuccessfullSchema:
+        """Delete the User Model from Database Table with Input ID in Path URL"""
+
+        await self.user.delete()
+        return SuccessfullSchema()
