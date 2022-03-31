@@ -24,7 +24,11 @@ from decorators import (
     check_user_level,
     check_member_role_team,
 )
-from ..deps import BaseAPIView, get_team
+from ..deps import (
+    get_team,
+    get_member,
+    BaseAPIView,
+)
 
 
 router = InferringRouter()
@@ -203,3 +207,21 @@ class MemberListCreateAPIView(MemberAPIView):
             detail = "This User does not Exist."
 
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=detail)
+
+
+@cbv(router)
+class MemberRetrieveUpdateDestroyAPIView(MemberAPIView):
+    """Class Based View for Retrieve Update Destroy Operations for Member Model"""
+
+    __PATH = "/{team_id}/member/{user_id}/"
+
+    member: TeamUser = Depends(get_member)
+
+    @router.get(
+        __PATH,
+        status_code=status.HTTP_200_OK,
+    )
+    async def retrieve(self) -> MemberOutDBSchema:
+        """Retrieve the Member Information Details by Get Primary Key ID in Path"""
+
+        return self.member
