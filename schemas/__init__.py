@@ -20,6 +20,7 @@ from .member import (
     MemberInDBSchema,
     MemberOutDBSchema,
     MemberUpdateSchema,
+    MemberFilterSchema,
 )
 from .project import (
     ProjectListSchema,

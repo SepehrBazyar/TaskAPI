@@ -8,12 +8,17 @@ from core import (
     PrimaryKeySchema,
     SuccessfullSchema,
 )
-from models import Team
+from models import Team, TeamUser
 from schemas import (
     TeamListSchema,
     TeamInDBSchema,
     TeamOutDBSchema,
     TeamUpdateSchema,
+    MemberListSchema,
+    MemberInDBSchema,
+    MemberOutDBSchema,
+    MemberUpdateSchema,
+    MemberFilterSchema,
 )
 from decorators import check_user_level
 from ..deps import BaseAPIView, get_team
@@ -123,3 +128,40 @@ class UserRetrieveUpdateDestroyAPIView(TeamAPIView):
 
         await self.team.delete()
         return SuccessfullSchema()
+
+
+class MemberAPIView(TeamAPIView):
+    """Basic Class Based View for CRUD Operations for Team Entity Model"""
+
+    model = TeamUser
+
+
+@cbv(router)
+class MemberListCreateAPIView(MemberAPIView):
+    """Class Based View for List & Create Operations for Team Model"""
+
+    __PATH = "/{team_id}/member/"
+
+    @router.get(
+        __PATH,
+        status_code=status.HTTP_200_OK,
+    )
+    @check_user_level(Level.ADMIN)
+    async def list(
+        self,
+        request: Request,
+        pagination: ItemsPerPage = Depends(),
+        params: MemberFilterSchema = Depends(),
+    ) -> MemberListSchema:
+        """Returned the List of Team with Brief Details in Pagination Mode"""
+
+        count, next, previous, queryset = await self.get_list(
+            url=request.url, pagination=pagination, **params.dict(exclude_none=True)
+        )
+
+        return {
+            "count": count,
+            "next": next,
+            "previous": previous,
+            "results": await queryset.all(),
+        }
