@@ -1,6 +1,11 @@
 from pydantic import Field
 from typing import Optional, List
-from core import BaseModel, Pagination, PrimaryKeySchema
+from core import (
+    BaseModel,
+    Pagination,
+    PrimaryKeySchema,
+    ValidUpdateMixinSchema,
+)
 from .user import UserBriefSchema
 
 
@@ -28,7 +33,7 @@ class TeamOutDBSchema(TeamNameSchema):
     creator: UserBriefSchema
 
 
-class TeamUpdateSchema(BaseModel):
+class TeamUpdateSchema(ValidUpdateMixinSchema):
     """Schema for Update Team Fields All is Optional Items Remove Unsets"""
 
     name: Optional[str] = Field(default=None, min_length=3, max_length=64)
