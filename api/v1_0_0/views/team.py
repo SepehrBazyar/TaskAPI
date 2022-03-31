@@ -227,3 +227,15 @@ class MemberRetrieveUpdateDestroyAPIView(MemberAPIView):
         """Retrieve the Member Information Details by Get Primary Key ID in Path"""
 
         return self.member
+
+
+    @router.delete(
+        __PATH,
+        status_code=status.HTTP_200_OK,
+    )
+    @check_member_role_access
+    async def destroy(self) -> SuccessfullSchema:
+        """Remove the Member Models from Members of this Team Many to Many Relation"""
+
+        await self.member.delete()
+        return SuccessfullSchema()
