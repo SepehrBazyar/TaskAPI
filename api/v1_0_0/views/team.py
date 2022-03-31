@@ -35,7 +35,7 @@ class TeamAPIView(BaseAPIView):
 
 
 @cbv(router)
-class UserListCreateAPIView(TeamAPIView):
+class TeamListCreateAPIView(TeamAPIView):
     """Class Based View for List & Create Operations for Team Model"""
 
     __PATH = "/"
@@ -83,7 +83,7 @@ class UserListCreateAPIView(TeamAPIView):
 
 
 @cbv(router)
-class UserRetrieveUpdateDestroyAPIView(TeamAPIView):
+class TeamRetrieveUpdateDestroyAPIView(TeamAPIView):
     """Class Based View for Retrieve Update Destroy Operations for User Model"""
 
     __PATH = "/{team_id}/"
@@ -135,12 +135,18 @@ class MemberAPIView(TeamAPIView):
 
     model = TeamUser
 
+    async def get_queryset(self, **kwargs):
+        result = await super().get_queryset(**kwargs)
+        return result.select_related(self.model.user)
+
 
 @cbv(router)
 class MemberListCreateAPIView(MemberAPIView):
     """Class Based View for List & Create Operations for Team Model"""
 
     __PATH = "/{team_id}/member/"
+
+    team: Team = Depends(get_team)
 
     @router.get(
         __PATH,
@@ -156,7 +162,10 @@ class MemberListCreateAPIView(MemberAPIView):
         """Returned the List of Team with Brief Details in Pagination Mode"""
 
         count, next, previous, queryset = await self.get_list(
-            url=request.url, pagination=pagination, **params.dict(exclude_none=True)
+            url=request.url,
+            pagination=pagination,
+            team=self.team,
+            **params.dict(exclude_none=True),
         )
 
         return {

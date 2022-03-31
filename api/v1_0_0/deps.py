@@ -78,8 +78,13 @@ class BaseAPIView(ABC):
 
         next, previous = await paginate.next_and_previous()
         queryset = (
-            self.model.objects.filter(**kwargs)
+            (await self.get_queryset(**kwargs))
             .offset(paginate.skip).limit(paginate.size)
         )
 
         return count, next, previous, queryset
+
+    async def get_queryset(self, **kwargs) -> QuerySet:
+        """Get Query Set Method to Pre Generator Objects Query Set to Pagination"""
+
+        return self.model.objects.filter(**kwargs)
