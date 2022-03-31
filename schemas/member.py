@@ -8,7 +8,7 @@ from core import (
     Pagination,
     ValidUpdateMixinSchema,
 )
-from .user import UserBriefSchema
+from .user import UserBriefSchema, UserOutDBSchema
 
 
 class MemberBriefSchema(BaseModel):
@@ -23,12 +23,14 @@ class MemberInDBSchema(BaseModel):
 
     user_id: UUID
     role: Literal[Role.EMPLOYEE, Role.MANAGER] = Field(default=Role.EMPLOYEE)
+    joined_at: date = Field(default_factory=date.today)
 
 
 class MemberOutDBSchema(MemberBriefSchema):
     """Schema to Retrieve Member with User Model Brief Detial Information"""
 
     joined_at: date
+    user: UserOutDBSchema
 
 
 class MemberUpdateSchema(ValidUpdateMixinSchema):

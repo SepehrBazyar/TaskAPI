@@ -20,7 +20,10 @@ from schemas import (
     MemberUpdateSchema,
     MemberFilterSchema,
 )
-from decorators import check_user_level
+from decorators import (
+    check_user_level,
+    check_member_role_team,
+)
 from ..deps import BaseAPIView, get_team
 
 
@@ -152,7 +155,7 @@ class MemberListCreateAPIView(MemberAPIView):
         __PATH,
         status_code=status.HTTP_200_OK,
     )
-    @check_user_level(Level.ADMIN)
+    @check_member_role_team(Role.OWNER, Role.MANAGER)
     async def list(
         self,
         request: Request,
@@ -174,3 +177,22 @@ class MemberListCreateAPIView(MemberAPIView):
             "previous": previous,
             "results": await queryset.all(),
         }
+
+
+    @router.post(
+        __PATH,
+        status_code=status.HTTP_201_CREATED,
+    )
+    @check_member_role_team(Role.OWNER, Role.MANAGER)
+    async def create(self, member_form: MemberInDBSchema) -> SuccessfullSchema:
+        """Added New Member Model to a Team Entity & Returned Primary Key UUID"""
+
+        member_fields = member_form.dict(exclude={"user_id"})
+        try:
+            await self.team.members.add(member_form.user_id, **member_fields)
+        except Exception:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="Add Member Failed."
+            )
+        else:
+            return SuccessfullSchema()
