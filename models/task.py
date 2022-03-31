@@ -1,22 +1,24 @@
-import orm
-from uuid import uuid4
-from core import LowerNameMixin
-from db import models
-from .member import Member
+import ormar
+from datetime import date
+from typing import Optional
+from core import PrimaryKeyMixin
+from db import MainMeta
+from .user import User
 from .project import Project
 
 
-class Task(LowerNameMixin, orm.Model):
+class Task(PrimaryKeyMixin, ormar.Model):
     """Task Model Class to Implement Method for Operations of Task Entity"""
 
-    registry = models
-    fields = {
-        "id": orm.UUID(primary_key=True, default=uuid4),
-        "name": orm.String(max_length=64, unique=True),
-        "description": orm.Text(allow_null=True, default=None),
-        "start_date": orm.Date(allow_null=True, default=None),
-        "end_date": orm.Date(allow_null=True, default=None),
-        "is_halted": orm.Boolean(index=True, default=True),
-        "member_id": orm.ForeignKey(to=Member, on_delete=orm.CASCADE),
-        "project_id": orm.ForeignKey(to=Project, on_delete=orm.CASCADE),
-    }
+    name: str = ormar.String(max_length=64, nullalbe=False)
+    description: Optional[str] = ormar.Text(nullable=True, default=None)
+    start_date: Optional[date] = ormar.Date(nullable=True, default=None)
+    end_date: Optional[date] = ormar.Date(nullable=True, default=None)
+    is_halted: bool = ormar.Boolean(index=True, nullable=False, default=True)
+    user: User = ormar.ForeignKey(to=User)
+    project: Project = ormar.ForeignKey(to=Project)
+
+    class Meta(MainMeta):
+        constraints = [
+            ormar.UniqueColumns("user", "project", "name"),
+        ]
