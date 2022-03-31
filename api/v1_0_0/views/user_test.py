@@ -6,7 +6,6 @@ from core import (
     Level,
     jwt_auth,
     ItemsPerPage,
-    DBPagination,
     PrimaryKeySchema,
     SuccessfullSchema,
 )
@@ -23,7 +22,7 @@ from schemas import (
     ChangePasswordSchema,
 )
 from decorators import check_user_level
-from ..deps import BaseAPIView
+from ..deps import BaseAPIView, get_user
 
 
 router = InferringRouter()
@@ -182,3 +181,21 @@ class UserSelfAPIView(UserAPIView):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Wrong Password."
         )
+
+
+@cbv(router)
+class UserRetrieveUpdateDestroyAPIView(UserAPIView):
+    """Class Based View for Retrieve Update Destroy Operations for User Model"""
+
+    __PATH = "/{user_id}/"
+    user: User = Depends(get_user)
+
+    @router.get(
+        __PATH,
+        status_code=status.HTTP_200_OK,
+    )
+    @check_user_level(Level.ADMIN)
+    async def retrieve(self) -> UserOutDBSchema:
+        """Retrieve the User Information Details by Get Primary Key ID in Path"""
+
+        return self.user

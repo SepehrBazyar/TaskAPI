@@ -1,6 +1,7 @@
 from fastapi import Depends, HTTPException, status
 from starlette.datastructures import URL
 from ormar import QuerySet
+from uuid import UUID
 from abc import ABC
 from typing import Optional, Tuple
 from core import (
@@ -27,6 +28,18 @@ async def get_current_user(token: str = Depends(oauth2_schema)) -> User:
         headers={
             "WWW-Authenticate": "Bearer",
         },
+    )
+
+
+async def get_user(user_id: UUID) -> User:
+    """Dependency to Get User ID in Path URL & Returned User Object if Exists"""
+
+    user = await User.objects.get_or_none(id=user_id)
+    if user is not None:
+        return user
+
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND, detail="User Not Found."
     )
 
 
