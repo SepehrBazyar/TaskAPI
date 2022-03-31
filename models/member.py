@@ -11,8 +11,8 @@ class TeamUser(PrimaryKeyMixin, ormar.Model):
     joined_at: date = ormar.Date(default=date.today)
 
     # Foreign Keys
-    user_id = ormar.UUID(uuid_format="string")
-    team_id = ormar.UUID(uuid_format="string")
+    user = ormar.UUID(uuid_format="string")
+    team = ormar.UUID(uuid_format="string")
 
     @ormar.property_field
     def role_(self) -> Role:
@@ -23,5 +23,5 @@ class TeamUser(PrimaryKeyMixin, ormar.Model):
     class Meta(MainMeta):
         tablename = "members"
         constraints = [
-            ormar.UniqueColumns("user_id", "team_id"),
+            ormar.UniqueColumns("user", "team"),
         ]

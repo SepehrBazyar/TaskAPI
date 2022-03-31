@@ -15,8 +15,9 @@ class Team(PrimaryKeyMixin, ormar.Model):
     members = ormar.ManyToMany(
         to=User,
         through=TeamUser,
-        through_relation_name="team_id",
-        through_reverse_relation_name="user_id",
+        related_name="member",
+        through_relation_name="team",
+        through_reverse_relation_name="user",
     )
 
     @classmethod
