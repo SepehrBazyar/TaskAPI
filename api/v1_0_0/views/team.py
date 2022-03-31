@@ -13,6 +13,7 @@ from schemas import (
     TeamListSchema,
     TeamInDBSchema,
     TeamOutDBSchema,
+    TeamUpdateSchema,
 )
 from decorators import check_user_level
 from ..deps import BaseAPIView, get_team
@@ -93,3 +94,32 @@ class UserRetrieveUpdateDestroyAPIView(TeamAPIView):
         """Retrieve the Team Information Details by Get Primary Key ID in Path"""
 
         return self.team
+
+
+    @router.patch(
+        __PATH,
+        status_code=status.HTTP_200_OK,
+    )
+    @check_user_level(Level.ADMIN)
+    async def partial_update(self, fields: TeamUpdateSchema) -> SuccessfullSchema:
+        """Updated the Team Information Detail with ID Primary Key in Path URL"""
+
+        flag = await self.team.rename(update_form=fields)
+        if flag:
+            return SuccessfullSchema()
+
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Update Data Failed."
+        )
+
+
+    @router.delete(
+        __PATH,
+        status_code=status.HTTP_200_OK,
+    )
+    @check_user_level(Level.ADMIN)
+    async def destroy(self) -> SuccessfullSchema:
+        """Delete the Team Model from Database Table with Input ID in Path URL"""
+
+        await self.team.delete()
+        return SuccessfullSchema()
