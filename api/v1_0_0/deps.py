@@ -1,6 +1,14 @@
 from fastapi import Depends, HTTPException, status
+from starlette.datastructures import URL
+from ormar import QuerySet
 from abc import ABC
-from core import oauth2_schema, jwt_auth
+from typing import Optional, Tuple
+from core import (
+    jwt_auth,
+    ItemsPerPage,
+    DBPagination,
+    oauth2_schema,
+)
 from models import User
 
 
@@ -27,3 +35,26 @@ class BaseAPIView(ABC):
 
     # Shared Dependencies As a Class Atrribiutes Access from Self Parameter
     current_user: User = Depends(get_current_user, use_cache=True)
+
+    async def get_list(
+        self,
+        url: URL,
+        pagination: ItemsPerPage,
+        **kwargs,
+    ) -> Tuple[int, Optional[str], Optional[str], QuerySet]:
+        """Returned the List of Entity Model with Brief Details in Pagination Mode"""
+
+        count: int = await self.model.objects.filter(**kwargs).count()
+        paginate = DBPagination(url=url, total=count, paginations=pagination)
+        if not await paginate.is_valid_page():
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Page Not Found."
+            )
+
+        next, previous = await paginate.next_and_previous()
+        queryset = (
+            self.model.objects.filter(**kwargs)
+            .offset(paginate.skip).limit(paginate.size)
+        )
+
+        return count, next, previous, queryset

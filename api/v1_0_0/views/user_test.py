@@ -97,18 +97,8 @@ class UserListCreateAPIView(UserAPIView):
     ) -> UserListSchema:
         """Returned the List of User with Brief Details in Pagination Mode"""
 
-        filters = params.dict(exclude_none=True)
-        count = await self.model.objects.filter(**filters).count()
-        paginate = DBPagination(url=request.url, total=count, paginations=pagination)
-        if not await paginate.is_valid_page():
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Page Not Found."
-            )
-
-        next, previous = await paginate.next_and_previous()
-        queryset = (
-            self.model.objects.filter(**filters)
-            .offset(paginate.skip).limit(paginate.size)
+        count, next, previous, queryset = await self.get_list(
+            url=request.url, pagination=pagination, **params.dict(exclude_none=True)
         )
 
         return {
