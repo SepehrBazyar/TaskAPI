@@ -1,4 +1,4 @@
-from .user_test import UserAPIView
+from .user import UserAPIView
 
 
 cbvs = [

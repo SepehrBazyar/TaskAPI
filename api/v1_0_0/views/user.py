@@ -1,74 +1,38 @@
-from fastapi import Depends, Body, HTTPException, status
+from fastapi import Request, Depends, Body, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_utils.cbv import cbv
 from fastapi_utils.inferring_router import InferringRouter
-from core import jwt_auth, Level, SuccessfullSchema
-from models import UserSerializer
+from core import (
+    Level,
+    jwt_auth,
+    ItemsPerPage,
+    PrimaryKeySchema,
+    SuccessfullSchema,
+)
+from models import User
 from schemas import (
+    UserListSchema,
+    UserInDBSchema,
+    UserOutDBSchema,
+    UserUpdateSchema,
+    UserFilterSchema,
     AccessTokenSchema,
     RefreshTokenSchema,
     UserSelfUpdateSchema,
     ChangePasswordSchema,
 )
 from decorators import check_user_level
-from generics import BaseAPIView, GenericAPIView
+from ..deps import BaseAPIView, get_user
 
 
 router = InferringRouter()
 
 
-class UserGenericAPIView(GenericAPIView):
-    """Generic Class Based Views for User Model Override Some of Methods"""
+class UserAPIView(BaseAPIView):
+    """Basic Class Based View for CRUD Operations for User Entity Model"""
 
-    __ERROR = "Phone Number Already Existed."
-
-    @check_user_level(Level.ADMIN)
-    async def list(self, request, pagination, params, **kwargs):
-        return await super().list(request, pagination, params, **kwargs)
-
-    @check_user_level(Level.ADMIN)
-    async def create(self, new_model, **kwargs):
-        return await super().create(new_model, **kwargs)
-
-    @check_user_level(Level.ADMIN)
-    async def retrieve(self, model, **kwargs):
-        return await super().retrieve(model, **kwargs)
-
-    @check_user_level(Level.ADMIN)
-    async def partial_update(self, model, fields, **kwargs):
-        return await super().partial_update(model, fields, **kwargs)
-
-    @check_user_level(Level.ADMIN)
-    async def destroy(self, model, **kwargs):
-        return await super().destroy(model, **kwargs)
-
-    async def pre_create(
-        self,
-        model_form: UserSerializer.Shcema.Create,
-    ) -> UserSerializer.model:
-        """Perform Create Method Called Before Create & Use Sign Up User Method"""
-
-        new_user = await UserSerializer.model.sign_up(form=model_form)
-        if new_user is not None:
-            return new_user
-
-        raise ValueError(self.__ERROR)
-
-    async def pre_update(
-        self,
-        model_object: UserSerializer.model,
-        model_form: UserSerializer.Shcema.PartialUpdate,
-    ):
-        """Perform Update Method Called Before Update & to Path of Save PNG Avatar"""
-
-        flag = await model_object.edit(update_form=model_form)
-        if flag:
-            return flag
-
-        raise ValueError(self.__ERROR)
-
-
-generic = UserGenericAPIView(router, serializer=UserSerializer)
+    model, router = User, router
+    name = model.get_name(lower=True)
 
 
 @router.post(
@@ -80,9 +44,7 @@ async def login(
 ) -> RefreshTokenSchema:
     """Authorize View Get Username & Password to Login User Returned JWT Token"""
 
-    user = await UserSerializer.model.objects.get_or_none(
-        mobile=form.username, is_active=True
-    )
+    user = await User.objects.get_or_none(mobile=form.username, is_active=True)
     if user is not None and await user.sign_in(password=form.password):
         return {
             "access_token": await jwt_auth.create_access_token(user_id=user.id),
@@ -115,35 +77,82 @@ async def refresh(
     )
 
 
-generic.list_create()
+@cbv(router)
+class UserListCreateAPIView(UserAPIView):
+    """Class Based View for List & Create Operations for User Model"""
+
+    __PATH = "/"
+
+    @router.get(
+        __PATH,
+        status_code=status.HTTP_200_OK,
+    )
+    @check_user_level(Level.ADMIN)
+    async def list(
+        self,
+        request: Request,
+        pagination: ItemsPerPage = Depends(),
+        params: UserFilterSchema = Depends(),
+    ) -> UserListSchema:
+        """Returned the List of User with Brief Details in Pagination Mode"""
+
+        count, next, previous, queryset = await self.get_list(
+            url=request.url, pagination=pagination, **params.dict(exclude_none=True)
+        )
+
+        return {
+            "count": count,
+            "next": next,
+            "previous": previous,
+            "results": await queryset.all(),
+        }
+
+
+    @router.post(
+        __PATH,
+        status_code=status.HTTP_201_CREATED,
+    )
+    @check_user_level(Level.ADMIN)
+    async def create(
+        self,
+        new_user: UserInDBSchema,
+    ) -> PrimaryKeySchema:
+        """Registering New User Model with Sign Up & Returned Primary Key UUID"""
+
+        user = await self.model.sign_up(form=new_user)
+        if user is not None:
+            return user
+
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Phone Number Already Existed.",
+        )
 
 
 @cbv(router)
-class UserSelfAPIView(BaseAPIView):
+class UserSelfAPIView(UserAPIView):
     """Class Based View for See and Edit Profile Operations for Self User Model"""
 
-    _PATH = "/profile/"
+    __PATH = "/profile/"
 
     @router.get(
-        _PATH,
+        __PATH,
         status_code=status.HTTP_200_OK,
     )
-    async def show_profile(self) -> UserSerializer.Shcema.Retrieve:
+    async def show_profile(self) -> UserOutDBSchema:
         """Showing the Profile Detail Item Fields of this Current User"""
 
         return self.current_user
 
 
     @router.patch(
-        _PATH,
+        __PATH,
         status_code=status.HTTP_200_OK,
     )
-    async def edit_profile(
-        self, updated_user: UserSelfUpdateSchema
-    ) -> SuccessfullSchema:
+    async def edit_profile(self, fields: UserSelfUpdateSchema) -> SuccessfullSchema:
         """Edit the Profile Detail Item Fields of this Current User"""
 
-        flag = await self.current_user.edit(update_form=updated_user)
+        flag = await self.current_user.edit(update_form=fields)
         if flag:
             return SuccessfullSchema()
 
@@ -157,7 +166,8 @@ class UserSelfAPIView(BaseAPIView):
         status_code=status.HTTP_200_OK,
     )
     async def change_password(
-        self, passwords: ChangePasswordSchema
+        self,
+        passwords: ChangePasswordSchema,
     ) -> SuccessfullSchema:
         """Change & Update the Password of this Current User with Check Correctly"""
 
@@ -170,4 +180,49 @@ class UserSelfAPIView(BaseAPIView):
         )
 
 
-generic.retrieve_update_destory()
+@cbv(router)
+class UserRetrieveUpdateDestroyAPIView(UserAPIView):
+    """Class Based View for Retrieve Update Destroy Operations for User Model"""
+
+    __PATH = "/{user_id}/"
+
+    user: User = Depends(get_user)
+
+    @router.get(
+        __PATH,
+        status_code=status.HTTP_200_OK,
+    )
+    @check_user_level(Level.ADMIN)
+    async def retrieve(self) -> UserOutDBSchema:
+        """Retrieve the User Information Details by Get Primary Key ID in Path"""
+
+        return self.user
+
+
+    @router.patch(
+        __PATH,
+        status_code=status.HTTP_200_OK,
+    )
+    @check_user_level(Level.ADMIN)
+    async def partial_update(self, fields: UserUpdateSchema) -> SuccessfullSchema:
+        """Updated the User Information Detail with ID Primary Key in Path URL"""
+
+        flag = await self.user.edit(update_form=fields)
+        if flag:
+            return SuccessfullSchema()
+
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Update Data Failed."
+        )
+
+
+    @router.delete(
+        __PATH,
+        status_code=status.HTTP_200_OK,
+    )
+    @check_user_level(Level.ADMIN)
+    async def destroy(self) -> SuccessfullSchema:
+        """Delete the User Model from Database Table with Input ID in Path URL"""
+
+        await self.user.delete()
+        return SuccessfullSchema()
