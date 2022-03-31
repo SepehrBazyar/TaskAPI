@@ -222,7 +222,7 @@ class MemberRetrieveUpdateDestroyAPIView(MemberAPIView):
         __PATH,
         status_code=status.HTTP_200_OK,
     )
-    @check_member_role_access
+    @check_member_role_access(self_access=True)
     async def retrieve(self) -> MemberOutDBSchema:
         """Retrieve the Member Information Details by Get Primary Key ID in Path"""
 
@@ -233,7 +233,7 @@ class MemberRetrieveUpdateDestroyAPIView(MemberAPIView):
         __PATH,
         status_code=status.HTTP_200_OK,
     )
-    @check_member_role_access
+    @check_member_role_access()
     async def partial_update(self, fields: MemberUpdateSchema) -> SuccessfullSchema:
         """Updated the Member Information Detail with ID Primary Key in Path URL"""
 
@@ -251,7 +251,7 @@ class MemberRetrieveUpdateDestroyAPIView(MemberAPIView):
         __PATH,
         status_code=status.HTTP_200_OK,
     )
-    @check_member_role_access
+    @check_member_role_access()
     async def destroy(self) -> SuccessfullSchema:
         """Remove the Member Models from Members of this Team Many to Many Relation"""
 

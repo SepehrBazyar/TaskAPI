@@ -9,6 +9,9 @@ from models import (
 )
 
 
+DETAIL = "Permission Denied."
+
+
 def check_user_level(*levels: Level):
     """Check Level of the Current User if not in Levels Raised HTTPException"""
 
@@ -25,9 +28,7 @@ def check_user_level(*levels: Level):
                 if current_user.level_ in levels:
                     return await function(*args, **kwargs)
 
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN, detail="Permission Denied."
-            )
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=DETAIL)
 
         return wrapper
 
@@ -52,35 +53,38 @@ def check_member_role_team(*roles: Role):
                 if member.role_ in roles:
                     return await function(*args, **kwargs)
 
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN, detail="Permission Denied."
-            )
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=DETAIL)
 
         return wrapper
 
     return decorator
 
 
-def check_member_role_access(function: Callable):
-    """Check User Requested with Current User Else Raised HTTPException"""
+def check_member_role_access(self_access: bool = False):
+    """Check Member Role Requested with Current User Else Raised HTTPException"""
 
-    @wraps(function)
-    async def wrapper(*args, **kwargs):
-        self = kwargs.get("self")
-        try:
-            current_user: User = getattr(self, "current_user")
-            member: TeamUser = getattr(self, "member")
-        except AttributeError:
-            pass
-        else:
-            current_member = await TeamUser.objects.get_or_none(
-                team=member.team, user=current_user
-            )
-            if current_member is not None and current_member.role_ >= member.role_:
-                return await function(*args, **kwargs)
+    def decorator(function: Callable):
 
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Permission Denied."
-        )
+        @wraps(function)
+        async def wrapper(*args, **kwargs):
+            self = kwargs.get("self")
+            try:
+                current_user: User = getattr(self, "current_user")
+                member: TeamUser = getattr(self, "member")
+            except AttributeError:
+                pass
+            else:
+                if self_access and member.user == current_user:
+                    return await function(*args, **kwargs)
 
-    return wrapper
+                current_member = await TeamUser.objects.get_or_none(
+                    team=member.team, user=current_user
+                )
+                if current_member is not None and current_member.role_ > member.role_:
+                    return await function(*args, **kwargs)
+
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=DETAIL)
+
+        return wrapper
+
+    return decorator
