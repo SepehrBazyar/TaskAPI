@@ -26,7 +26,7 @@ class User(PrimaryKeyMixin, ormar.Model):
     email: Optional[EmailStr] = ormar.String(max_length=255, nullable=True, default=None)
     avatar: Optional[str] = ormar.String(max_length=255, nullable=True, default=None)
     fullname: Optional[str] = ormar.String(max_length=64, nullable=True, default=None)
-    is_active: bool = ormar.Boolean(index=True, default=True)
+    is_active: bool = ormar.Boolean(index=True, nullable=False, default=True)
 
     @ormar.property_field
     def level_(self) -> Level:
