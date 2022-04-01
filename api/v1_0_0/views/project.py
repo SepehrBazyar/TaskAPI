@@ -85,3 +85,22 @@ class ProjectListCreateAPIView(ProjectAPIView):
             detail = "This Team does not Exist."
 
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=detail)
+
+
+@cbv(router)
+class ProjectRetrieveUpdateDestroyAPIView(ProjectAPIView):
+    """Class Based View for Retrieve Update Destroy Operations for Project Model"""
+
+    __PATH = "/{project_id}/"
+
+    project: Project = Depends(get_project)
+
+    @router.get(
+        __PATH,
+        status_code=status.HTTP_200_OK,
+    )
+    @check_user_level(Level.ADMIN)
+    async def retrieve(self) -> ProjectOutDBSchema:
+        """Retrieve the Project Information Details by Get Primary Key ID in Path"""
+
+        return self.project
