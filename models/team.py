@@ -1,8 +1,8 @@
 import ormar
-from typing import Optional
+from typing import Optional, List
 from core import Role, PrimaryKeyMixin
 from db import MainMeta
-from schemas import TeamInDBSchema, TeamUpdateSchema
+from schemas import TeamInDBSchema
 from .user import User
 from .member import TeamUser
 
@@ -21,7 +21,7 @@ class Team(PrimaryKeyMixin, ormar.Model):
     )
 
     @classmethod
-    async def found(cls, form: TeamInDBSchema, creator: User) -> Optional["Team"]:
+    async def found(cls, creator: User, form: TeamInDBSchema) -> Optional["Team"]:
         """Found method to Create New Team with User Owner in Members List"""
 
         if not await cls.objects.filter(name=form.name).exists():
@@ -29,15 +29,26 @@ class Team(PrimaryKeyMixin, ormar.Model):
             await team.members.add(creator, role=Role.OWNER)
             return team
 
-    async def rename(self, update_form: TeamUpdateSchema) -> bool:
-        """Utility Method to Rename and Update Team Fields by Update Schema Fields"""
+    async def members_list(
+        self,
+        limit: Optional[int] = None,
+        offset: Optional[int] = None,
+        *args: str,
+        **kwargs,
+    ) -> List[TeamUser]:
+        """Returned a List Contains of TeamUser Members Joined to User Table Row"""
 
-        if update_form.name is not None:
-            if await self.__class__.objects.filter(name=update_form.name).exists():
-                return False
+        queryset = TeamUser.objects.filter(team=self, **kwargs)
+        if args:
+            queryset = queryset.order_by(args)
 
-        await self.update(**update_form.dict(exclude_unset=True))
-        return True
+        if offset is not None:
+            queryset = queryset.offset(offset=offset)
+
+        if limit is not None:
+            queryset = queryset.limit(limit_count=limit)
+
+        return await queryset.select_related(TeamUser.user).all()
 
     class Meta(MainMeta):
         pass
