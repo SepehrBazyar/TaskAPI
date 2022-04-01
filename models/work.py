@@ -19,4 +19,4 @@ class Work(PrimaryKeyMixin, ormar.Model):
     task: Task = ormar.ForeignKey(to=Task)
 
     class Meta(MainMeta):
-        pass
+        orders_by = ["-end_time", "-start_time"]

@@ -16,6 +16,7 @@ class Project(PrimaryKeyMixin, ormar.Model):
     team: Team = ormar.ForeignKey(to=Team)    
 
     class Meta(MainMeta):
+        orders_by = ["-end_date", "-start_date"]
         constraints = [
             ormar.UniqueColumns("team", "name"),
         ]

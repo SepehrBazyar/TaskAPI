@@ -22,6 +22,7 @@ class TeamUser(PrimaryKeyMixin, ormar.Model):
 
     class Meta(MainMeta):
         tablename = "members"
+        orders_by = ["-role", "-joined_at"]
         constraints = [
             ormar.UniqueColumns("user", "team"),
         ]
