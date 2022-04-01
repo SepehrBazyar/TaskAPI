@@ -6,10 +6,15 @@ from core import BaseModel, Pagination, PrimaryKeySchema
 from .team import TeamBriefSchema
 
 
-class ProjectBriefSchema(PrimaryKeySchema):
-    """Schema of Brief Detials Project to Showing in Projects List with Team Info"""
+class ProjectNameBriefSchema(PrimaryKeySchema):
+    """Schema of Project Name to Showing in Projects List with Team Info"""
 
     name: str
+
+
+class ProjectBriefSchema(ProjectNameBriefSchema):
+    """Schema of Brief Detials Project to Showing in Projects List with Team Info"""
+
     team: TeamBriefSchema
 
 

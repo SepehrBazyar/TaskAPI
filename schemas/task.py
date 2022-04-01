@@ -4,7 +4,7 @@ from datetime import date
 from typing import Optional, List
 from core import BaseModel, Pagination, PrimaryKeySchema
 from .user import UserBriefSchema
-from .project import ProjectBriefSchema
+from .project import ProjectNameBriefSchema
 
 
 class TaskBriefSchema(PrimaryKeySchema):
@@ -13,7 +13,7 @@ class TaskBriefSchema(PrimaryKeySchema):
     name: str = Field(min_length=3, max_length=64)
     is_halted: bool = Field(default=True)
     user: UserBriefSchema
-    project: ProjectBriefSchema
+    project: ProjectNameBriefSchema
 
 
 class OptionalFieldSchema(BaseModel):
