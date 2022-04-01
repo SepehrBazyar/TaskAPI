@@ -7,7 +7,7 @@ from core import (
     PrimaryKeySchema,
     SuccessfullSchema,
 )
-from models import Project
+from models import Project, Team
 from schemas import (
     ProjectListSchema,
     ProjectInDBSchema,
@@ -60,3 +60,28 @@ class ProjectListCreateAPIView(ProjectAPIView):
             "previous": previous,
             "results": await queryset.all(),
         }
+
+
+    @router.post(
+        __PATH,
+        status_code=status.HTTP_201_CREATED,
+    )
+    @check_user_level(Level.ADMIN)
+    async def create(self, project_form: ProjectInDBSchema) -> PrimaryKeySchema:
+        """Created New Project Model & Returned Primary Key UUID"""
+
+        team = await Team.objects.get_or_none(id=project_form.team_id)
+        if team is not None:
+            try:
+                project = await Project.objects.create(
+                    team=team, **project_form.dict(exclude={"team_id"})
+                )
+            except Exception:
+                detail = "Failed to Create Project."
+            else:
+                return project
+
+        else:
+            detail = "This Team does not Exist."
+
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=detail)

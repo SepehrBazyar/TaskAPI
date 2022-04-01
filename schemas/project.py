@@ -38,7 +38,6 @@ class ProjectUpdateSchema(OptionalFieldSchema):
     """Schema for Update Project Fields All is Optional Items Remove Unsets"""
 
     name: Optional[str] = Field(default=None, min_length=3, max_length=64)
-    team_id: Optional[UUID] = Field(default=None)
 
 
 class ProjectListSchema(Pagination):
