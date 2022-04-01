@@ -1,5 +1,5 @@
 import ormar
-from typing import Optional, List
+from typing import Optional
 from core import Role, PrimaryKeyMixin
 from db import MainMeta
 from schemas import TeamInDBSchema
@@ -28,27 +28,6 @@ class Team(PrimaryKeyMixin, ormar.Model):
             team = await cls.objects.create(creator=creator, **form.dict())
             await team.members.add(creator, role=Role.OWNER)
             return team
-
-    async def members_list(
-        self,
-        limit: Optional[int] = None,
-        offset: Optional[int] = None,
-        *args: str,
-        **kwargs,
-    ) -> List[TeamUser]:
-        """Returned a List Contains of TeamUser Members Joined to User Table Row"""
-
-        queryset = TeamUser.objects.filter(team=self, **kwargs)
-        if args:
-            queryset = queryset.order_by(args)
-
-        if offset is not None:
-            queryset = queryset.offset(offset=offset)
-
-        if limit is not None:
-            queryset = queryset.limit(limit_count=limit)
-
-        return await queryset.select_related(TeamUser.user).all()
 
     class Meta(MainMeta):
         pass

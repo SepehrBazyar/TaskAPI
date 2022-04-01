@@ -2,7 +2,6 @@ from fastapi import Request, Depends, HTTPException, status
 from fastapi_utils.cbv import cbv
 from fastapi_utils.inferring_router import InferringRouter
 from core import (
-    Role,
     Level,
     ItemsPerPage,
     PrimaryKeySchema,
@@ -20,11 +19,7 @@ from schemas import (
     MemberUpdateSchema,
     MemberFilterSchema,
 )
-from decorators import (
-    check_user_level,
-    check_member_role_team,
-    check_member_role_access,
-)
+from decorators import check_user_level
 from ..deps import (
     get_team,
     get_member,
@@ -117,13 +112,14 @@ class TeamRetrieveUpdateDestroyAPIView(TeamAPIView):
     async def partial_update(self, fields: TeamUpdateSchema) -> SuccessfullSchema:
         """Updated the Team Information Detail with ID Primary Key in Path URL"""
 
-        flag = await self.team.rename(update_form=fields)
-        if flag:
+        try:
+            await self.team.update(**fields.dict(exclude_unset=True))
+        except Exception:
+            detail = "Update Data Failed."
+        else:
             return SuccessfullSchema()
 
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Update Data Failed."
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=detail)
 
 
     @router.delete(
@@ -160,7 +156,7 @@ class MemberListCreateAPIView(MemberAPIView):
         __PATH,
         status_code=status.HTTP_200_OK,
     )
-    @check_member_role_team(Role.OWNER, Role.MANAGER)
+    @check_user_level(Level.ADMIN)
     async def list(
         self,
         request: Request,
@@ -188,7 +184,7 @@ class MemberListCreateAPIView(MemberAPIView):
         __PATH,
         status_code=status.HTTP_201_CREATED,
     )
-    @check_member_role_team(Role.OWNER, Role.MANAGER)
+    @check_user_level(Level.ADMIN)
     async def create(self, member_form: MemberInDBSchema) -> SuccessfullSchema:
         """Added New Member Model to a Team Entity & Returned Primary Key UUID"""
 
@@ -222,7 +218,7 @@ class MemberRetrieveUpdateDestroyAPIView(MemberAPIView):
         __PATH,
         status_code=status.HTTP_200_OK,
     )
-    @check_member_role_access(self_access=True)
+    @check_user_level(Level.ADMIN)
     async def retrieve(self) -> MemberOutDBSchema:
         """Retrieve the Member Information Details by Get Primary Key ID in Path"""
 
@@ -233,7 +229,7 @@ class MemberRetrieveUpdateDestroyAPIView(MemberAPIView):
         __PATH,
         status_code=status.HTTP_200_OK,
     )
-    @check_member_role_access()
+    @check_user_level(Level.ADMIN)
     async def partial_update(self, fields: MemberUpdateSchema) -> SuccessfullSchema:
         """Updated the Member Information Detail with ID Primary Key in Path URL"""
 
@@ -251,7 +247,7 @@ class MemberRetrieveUpdateDestroyAPIView(MemberAPIView):
         __PATH,
         status_code=status.HTTP_200_OK,
     )
-    @check_member_role_access()
+    @check_user_level(Level.ADMIN)
     async def destroy(self) -> SuccessfullSchema:
         """Remove the Member Models from Members of this Team Many to Many Relation"""
 
