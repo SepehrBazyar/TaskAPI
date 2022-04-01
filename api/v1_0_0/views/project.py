@@ -104,3 +104,33 @@ class ProjectRetrieveUpdateDestroyAPIView(ProjectAPIView):
         """Retrieve the Project Information Details by Get Primary Key ID in Path"""
 
         return self.project
+
+
+    @router.patch(
+        __PATH,
+        status_code=status.HTTP_200_OK,
+    )
+    @check_user_level(Level.ADMIN)
+    async def partial_update(self, fields: ProjectUpdateSchema) -> SuccessfullSchema:
+        """Updated the Project Information Detail with ID Primary Key in Path URL"""
+
+        try:
+            await self.project.update(**fields.dict(exclude_unset=True))
+        except Exception:
+            detail = "Update Data Failed."
+        else:
+            return SuccessfullSchema()
+
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=detail)
+
+
+    @router.delete(
+        __PATH,
+        status_code=status.HTTP_200_OK,
+    )
+    @check_user_level(Level.ADMIN)
+    async def destroy(self) -> SuccessfullSchema:
+        """Delete the Project Model from Database Table with Input ID in Path URL"""
+
+        await self.project.delete()
+        return SuccessfullSchema()
