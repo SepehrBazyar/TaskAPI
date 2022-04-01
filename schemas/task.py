@@ -3,16 +3,17 @@ from uuid import UUID
 from datetime import date
 from typing import Optional, List
 from core import BaseModel, Pagination, PrimaryKeySchema
-from .member import MemberBriefSchema
-from .project import ProjectBriefSchema
+from .user import UserBriefSchema
+from .project import ProjectNameBriefSchema
 
 
 class TaskBriefSchema(PrimaryKeySchema):
     """Schema of the Brief Detials Task to Showing in Tasks List"""
 
     name: str = Field(min_length=3, max_length=64)
-    member: MemberBriefSchema
-    project: ProjectBriefSchema
+    is_halted: bool = Field(default=True)
+    user: UserBriefSchema
+    project: ProjectNameBriefSchema
 
 
 class OptionalFieldSchema(BaseModel):
@@ -28,14 +29,14 @@ class TaskInDBSchema(OptionalFieldSchema):
 
     name: str = Field(min_length=3, max_length=64)
     is_halted: bool = Field(default=True)
-    member_id: UUID
+    user_id: UUID
     project_id: UUID
 
 
 class TaskOutDBSchema(TaskBriefSchema, OptionalFieldSchema):
     """Schema to Retriever Task with Creator ID as Owner Role"""
 
-    is_halted: bool = Field(default=True)
+    pass
 
 
 class TaskUpdateSchema(OptionalFieldSchema):
@@ -43,8 +44,6 @@ class TaskUpdateSchema(OptionalFieldSchema):
 
     name: Optional[str] = Field(default=None, min_length=3, max_length=64)
     is_halted: Optional[bool] = Field(default=None)
-    member_id: Optional[UUID] = Field(default=None)
-    project_id: Optional[UUID] = Field(default=None)
 
 
 class TaskListSchema(Pagination):

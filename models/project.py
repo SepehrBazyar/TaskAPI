@@ -1,19 +1,22 @@
-import orm
-from uuid import uuid4
-from core import LowerNameMixin
-from db import models
+import ormar
+from datetime import date
+from typing import Optional
+from core import PrimaryKeyMixin
+from db import MainMeta
 from .team import Team
 
 
-class Project(LowerNameMixin, orm.Model):
+class Project(PrimaryKeyMixin, ormar.Model):
     """Project Model Class to Implement Method for Operations of Project Entity"""
 
-    registry = models
-    fields = {
-        "id": orm.UUID(primary_key=True, default=uuid4),
-        "name": orm.String(max_length=64, unique=True),
-        "description": orm.Text(allow_null=True, default=None),
-        "start_date": orm.Date(allow_null=True, default=None),
-        "end_date": orm.Date(allow_null=True, default=None),
-        "team_id": orm.ForeignKey(to=Team, on_delete=orm.CASCADE),
-    }
+    name: str = ormar.String(max_length=64, nullalbe=False)
+    description: Optional[str] = ormar.Text(nullable=True, default=None)
+    start_date: Optional[date] = ormar.Date(nullable=True, default=None)
+    end_date: Optional[date] = ormar.Date(nullable=True, default=None)
+    team: Team = ormar.ForeignKey(to=Team)    
+
+    class Meta(MainMeta):
+        orders_by = ["-end_date", "-start_date"]
+        constraints = [
+            ormar.UniqueColumns("team", "name"),
+        ]

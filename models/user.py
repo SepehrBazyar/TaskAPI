@@ -98,4 +98,4 @@ class User(PrimaryKeyMixin, ormar.Model):
         return str(users_dir / f"{phone_number}.png")
 
     class Meta(MainMeta):
-        pass
+        orders_by = ["-is_active", "-level"]

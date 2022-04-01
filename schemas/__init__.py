@@ -27,6 +27,7 @@ from .project import (
     ProjectInDBSchema,
     ProjectOutDBSchema,
     ProjectUpdateSchema,
+    ProjectNameBriefSchema,
 )
 from .task import (
     TaskListSchema,
