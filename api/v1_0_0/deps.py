@@ -15,6 +15,7 @@ from models import (
     Team,
     TeamUser,
     Project,
+    Task,
 )
 
 
@@ -85,6 +86,20 @@ async def get_project(project_id: UUID) -> Project:
 
     raise HTTPException(
         status_code=status.HTTP_404_NOT_FOUND, detail="Project Not Found."
+    )
+
+
+async def get_task(task_id: UUID) -> Task:
+    """Dependency to Get Task ID in Path URL & Returned Task Object if Exists"""
+
+    queryset = Task.objects.select_related(related=[Task.user, Task.project])
+
+    task = await queryset.get_or_none(id=task_id)
+    if task is not None:
+        return task
+
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND, detail="Task Not Found."
     )
 
 
