@@ -127,7 +127,8 @@ class BaseAPIView(ABC):
         next, previous = await paginate.next_and_previous()
         queryset = (
             (await self.get_queryset(**kwargs))
-            .offset(paginate.skip).limit(paginate.size)
+            .offset(paginate.skip, limit_raw_sql=True)
+            .limit(paginate.size, limit_raw_sql=True)
         )
 
         return count, next, previous, queryset
