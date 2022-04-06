@@ -15,6 +15,7 @@ class Settings(BaseSettings):
 
     # Databases
     POSTGRESQL_URL: str
+    SQLITE_TEST_URL: str
 
     # Media
     USER_AVATAR_PATH: str
