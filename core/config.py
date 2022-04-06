@@ -11,7 +11,8 @@ class Settings(BaseSettings):
     ALLOWED_HOSTS: str
     REFRESH_TOKEN_EXPIRE_DAYS: int
     ACCESS_TOKEN_EXPIRE_MINUTES: int
-    DEBUG: bool
+    DEVELOPMENT: bool
+    TESTING: bool
 
     # Databases
     POSTGRESQL_URL: str

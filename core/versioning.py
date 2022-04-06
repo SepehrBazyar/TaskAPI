@@ -30,7 +30,7 @@ class VersionFastAPI:
             },
         }
 
-        if settings.DEBUG:
+        if settings.DEVELOPMENT:
             self.app = FastAPI(**__kwargs)
         else:
             self.app = FastAPI(docs_url=None, redoc_url=None, **__kwargs)

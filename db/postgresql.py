@@ -5,7 +5,9 @@ from uvicorn.config import logger
 from core import settings
 
 
-database = Database(settings.POSTGRESQL_URL)
+DATABASE_URL = settings.SQLITE_TEST_URL if settings.TESTING else settings.POSTGRESQL_URL
+
+database = Database(url=DATABASE_URL)
 metadata = MetaData()
 
 
