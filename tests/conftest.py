@@ -1,11 +1,11 @@
-from pytest import fixture
-from sqlalchemy.ext.asyncio import create_async_engine
+from pytest_asyncio import fixture
+from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 from asyncio import get_event_loop
 from core import settings
 from db import metadata
 
 
-engine = create_async_engine(settings.SQLITE_TEST_URL, echo=True)
+engine: AsyncEngine = create_async_engine(settings.SQLITE_TEST_URL, echo=True)
 
 
 @fixture(autouse=True, scope="session")

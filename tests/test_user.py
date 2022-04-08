@@ -1,9 +1,7 @@
-from pytest import mark
-from schemas import UserInDBSchema
 from models import User
+from schemas import UserInDBSchema
 
 
-@mark.asyncio
 class TestUser:
     async def test_create_user(self):
         form = UserInDBSchema(mobile="9123456789", password="1234567890")
