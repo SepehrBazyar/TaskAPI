@@ -24,3 +24,21 @@ class TestUserModel:
 
         user2 = await User.sign_up(form=form)
         assert user2 is None
+
+    async def test_create_admin_user(self):
+        form = UserInDBSchema(
+            level=Level.ADMIN,
+            mobile=self.__MOBILE,
+            password=self.__PASSWORD,
+        )
+        user = await User.sign_up(form=form)
+
+        assert user.level_ is Level.ADMIN
+        assert isinstance(user.level, str)
+
+    async def test_login_password_user(self):
+        form = UserInDBSchema(mobile=self.__MOBILE, password=self.__PASSWORD)
+        user = await User.sign_up(form=form)
+
+        assert await user.sign_in(password=self.__PASSWORD) is True
+        assert await user.sign_in(password="wrongpassword") is False
