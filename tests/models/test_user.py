@@ -5,6 +5,7 @@ from core import settings, Level
 from models import User
 from schemas import (
     UserInDBSchema,
+    UserUpdateSchema,
     ChangePasswordSchema,
 )
 
@@ -67,6 +68,27 @@ class TestUserModel:
 
         assert await user.sign_in(password=self.__PASSWORD) is True
         assert await user.sign_in(password="wrongpassword") is False
+    
+    async def test_edit_successfull_activate_user(self):
+        form = UserInDBSchema(mobile=self.__MOBILE, password=self.__PASSWORD)
+        user = await User.sign_up(form=form)
+
+        edited_form = UserUpdateSchema(is_active=False)
+        result = await user.edit(update_form=edited_form)
+
+        assert result is True
+
+    async def test_edit_failed_phone_number_user(self):
+        form1 = UserInDBSchema(mobile=self.__MOBILE, password=self.__PASSWORD)
+        user1 = await User.sign_up(form=form1)
+
+        form2 = UserInDBSchema(mobile="9987654321", password=self.__PASSWORD)
+        user2 = await User.sign_up(form=form2)
+
+        edited_form = UserUpdateSchema(mobile=self.__MOBILE)
+        result = await user2.edit(update_form=edited_form)
+
+        assert result is False
 
     async def test_change_password_failed_user(self):
         form = UserInDBSchema(mobile=self.__MOBILE, password=self.__PASSWORD)
