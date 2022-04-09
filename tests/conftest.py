@@ -10,12 +10,24 @@ engine: AsyncEngine = create_async_engine(settings.SQLITE_TEST_URL, echo=True)
 
 @fixture(autouse=True, scope="session")
 async def create_test_database():
-    """Basic SetUp and TearDown for Clearing DataBase"""
+    """SetUp & TearDown Fixture to Create & Delete Database by Metadata"""
 
     async with engine.begin() as conn:
         await conn.run_sync(metadata.create_all)
         yield
         await conn.run_sync(metadata.drop_all)
+
+
+@fixture(autouse=True, scope="function")
+async def clean_tables_database():
+    """Clearing Database Tables to Delete All Rows for Each Test Case"""
+
+    try:
+        yield
+    finally:
+        async with engine.begin() as conn:
+            for table in reversed(metadata.sorted_tables):
+                await conn.execute(table.delete())
 
 
 @fixture(autouse=True, scope="session")
