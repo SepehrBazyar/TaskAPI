@@ -68,6 +68,22 @@ class TestUserModel:
         assert await user.sign_in(password=self.__PASSWORD) is True
         assert await user.sign_in(password="wrongpassword") is False
 
+    async def test_change_password_failed_user(self):
+        form = UserInDBSchema(mobile=self.__MOBILE, password=self.__PASSWORD)
+        user = await User.sign_up(form=form)
+
+        new_password = "newpassword"
+        passwords_form = ChangePasswordSchema(
+            old_password="wrongpassword",
+            new_password=new_password,
+            confirm_password=new_password,
+        )
+        result = await user.change_password(passwords=passwords_form)
+
+        assert result is False
+        assert await user.sign_in(password=new_password) is False
+        assert await user.sign_in(password=self.__PASSWORD) is True
+
     async def test_change_password_successfull_user(self):
         form = UserInDBSchema(mobile=self.__MOBILE, password=self.__PASSWORD)
         user = await User.sign_up(form=form)
