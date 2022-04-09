@@ -3,7 +3,10 @@ from uuid import UUID
 from pathlib import Path
 from core import settings, Level
 from models import User
-from schemas import UserInDBSchema
+from schemas import (
+    UserInDBSchema,
+    ChangePasswordSchema,
+)
 
 
 class TestUserModel:
@@ -64,3 +67,19 @@ class TestUserModel:
 
         assert await user.sign_in(password=self.__PASSWORD) is True
         assert await user.sign_in(password="wrongpassword") is False
+
+    async def test_change_password_successfull_user(self):
+        form = UserInDBSchema(mobile=self.__MOBILE, password=self.__PASSWORD)
+        user = await User.sign_up(form=form)
+
+        new_password = "newpassword"
+        passwords_form = ChangePasswordSchema(
+            old_password=self.__PASSWORD,
+            new_password=new_password,
+            confirm_password=new_password,
+        )
+        result = await user.change_password(passwords=passwords_form)
+
+        assert result is True
+        assert await user.sign_in(password=new_password) is True
+        assert await user.sign_in(password=self.__PASSWORD) is False
