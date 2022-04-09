@@ -1,7 +1,8 @@
-from pytest import MonkeyPatch
+from pytest import MonkeyPatch, raises
+from pydantic import ValidationError
 from uuid import UUID
 from pathlib import Path
-from core import settings, Level
+from core import settings, pwd_context, Level
 from models import User
 from schemas import (
     UserInDBSchema,
@@ -20,7 +21,25 @@ class UserConstants:
 class TestUserSchema(UserConstants):
     """Test Cases Class to Schemas of User Class Model Entity Pydantic"""
 
-    pass
+    def test_hashed_password_user(self):
+        form = UserInDBSchema(
+            mobile=self._MOBILE,
+            password=self._PASSWORD,
+        )
+
+        assert pwd_context.verify(self._PASSWORD, form.password)
+
+    def test_empty_update_user(self):
+        with raises(ValidationError):
+            UserUpdateSchema()
+
+    def test_unmatched_passwords_user(self):
+        with raises(ValidationError):
+            ChangePasswordSchema(
+                old_password="oldpassword",
+                new_password="newpassword",
+                confirm_password="unmatchpassword",
+            )
 
 
 class TestUserModel(UserConstants):
