@@ -2,6 +2,7 @@ from pytest import MonkeyPatch, raises
 from pydantic import ValidationError
 from uuid import UUID
 from pathlib import Path
+from base64 import b64encode
 from core import settings, pwd_context, Level
 from models import User
 from schemas import (
@@ -32,6 +33,17 @@ class TestUserSchema(UserConstants):
     def test_empty_update_user(self):
         with raises(ValidationError):
             UserUpdateSchema()
+
+    def test_avatar_invalid_string_user(self):
+        with raises(ValidationError):
+            UserUpdateSchema(avatar="invalid_avatar")
+
+    def test_avatar_invalid_encoded_user(self):
+        with raises(ValidationError):
+            UserUpdateSchema(avatar=b64encode("invalid_avatar".encode()).decode())
+
+    def test_avatar_valid_encoded_user(self):
+        UserUpdateSchema(avatar=self._AVATAR)
 
     def test_unmatched_passwords_user(self):
         with raises(ValidationError):
