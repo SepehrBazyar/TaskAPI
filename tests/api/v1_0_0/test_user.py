@@ -26,3 +26,18 @@ class TestUserRoutes:
         assert content["results"][0]["mobile"] == FIRST_ADMIN.get("username")
         assert content["results"][0]["level"] == Level.ADMIN.value
         assert content["results"][0]["is_active"] is True
+
+    async def test_create_user(
+        self,
+        client: AsyncClient,
+        admin_token_headers: Dict[str, str],
+    ):
+        response = await client.post(
+            url=URL_STR,
+            headers=admin_token_headers,
+            data={
+                "mobile": "9123456789",
+                "password": "secretpassword",
+            },
+        )
+        assert response.status_code == status.HTTP_201_CREATED
