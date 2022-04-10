@@ -18,19 +18,10 @@ FIRST_ADMIN = {
 }
 
 VERSIONS = {
-    "1.0.0": "/v1.0.0/",
+    version: f"/v{version}/" for version in [
+        "1.0.0",
+    ]
 }
-
-
-async def insert_first_admin():
-    """Inserting First Admin User to Access Protected Routes View"""
-
-    form = UserInDBSchema(
-        level=Level.ADMIN,
-        mobile=FIRST_ADMIN.get("username"),
-        password=FIRST_ADMIN.get("password"),
-    )
-    await User.sign_up(form=form)
 
 
 @fixture(autouse=True, scope="session")
@@ -48,7 +39,6 @@ async def clean_tables_database():
     """Clearing Database Tables to Delete All Rows for Each Test Case"""
 
     try:
-        await insert_first_admin()
         yield
     finally:
         async with engine.begin() as conn:
@@ -64,11 +54,22 @@ async def client() -> Generator[AsyncClient, None, None]:
         yield client
 
 
+@fixture(autouse=True, scope="function")
+async def insert_first_admin():
+    """Fixture to Inserting First Admin User for Access Protected Routes View"""
+
+    form = UserInDBSchema(
+        level=Level.ADMIN,
+        mobile=FIRST_ADMIN.get("username"),
+        password=FIRST_ADMIN.get("password"),
+    )
+    await User.sign_up(form=form)
+
+
 @fixture(scope="session")
 async def admin_token_headers(client: AsyncClient) -> Dict[str, str]:
-    """PASS"""
+    """Sent Authorize Data to Login Super Admin Get Access Token"""
 
-    await insert_first_admin()
     response = await client.post(f"/user/login/", data=FIRST_ADMIN)
     tokens: Dict[str, str] = response.json()
     return {
