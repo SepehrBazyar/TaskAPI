@@ -66,7 +66,7 @@ async def insert_first_admin():
     await User.sign_up(form=form)
 
 
-@fixture(scope="session")
+@fixture(scope="function")
 async def admin_token_headers(client: AsyncClient) -> Dict[str, str]:
     """Sent Authorize Data to Login Super Admin Get Access Token"""
 
