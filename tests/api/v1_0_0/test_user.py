@@ -35,9 +35,10 @@ class TestUserRoutes:
         response = await client.post(
             url=URL_STR,
             headers=admin_token_headers,
-            data={
+            json={
                 "mobile": "9123456789",
                 "password": "secretpassword",
             },
         )
+
         assert response.status_code == status.HTTP_201_CREATED
