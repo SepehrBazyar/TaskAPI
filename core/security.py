@@ -1,5 +1,6 @@
 from fastapi.security import OAuth2PasswordBearer
 from starlette.staticfiles import StaticFiles, PathLike
+from starlette.types import Receive, Scope, Send
 from passlib.context import CryptContext
 from jose import jwt, JWTError
 from uuid import UUID
@@ -110,6 +111,15 @@ class AuthStaticFiles(StaticFiles):
             check_dir=check_dir,
         )
         self.authorizes = authorizes
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        """Calling Magic Coroutine Method to Await the Authentications"""
+
+        if self.authorizes is not None:
+            async for authorize in self.authorizes:
+                await authorize()
+
+        return await super().__call__(scope, receive, send)
 
 
 jwt_auth = AuthJWT(
