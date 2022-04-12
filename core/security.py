@@ -1,8 +1,9 @@
 from fastapi.security import OAuth2PasswordBearer
+from starlette.staticfiles import StaticFiles, PathLike
 from passlib.context import CryptContext
 from jose import jwt, JWTError
 from uuid import UUID
-from typing import Optional, Dict, Literal, Any
+from typing import Optional, List, Dict, Literal, Coroutine, Any
 from datetime import datetime, timedelta
 from .config import settings
 
@@ -86,6 +87,29 @@ class AuthJWT:
         data = await self.__decode_token(refresh_token)
         if data is not None and data.get("type") == "refresh":
             return await self.create_access_token(user_id=data.get("user_id"))
+
+
+class AuthStaticFiles(StaticFiles):
+    """Inheritaced Class Static Files with Apply Authorize Dependencies"""
+
+    def __init__(
+        self,
+        *,
+        directory: PathLike = None,
+        packages: List[str] = None,
+        html: bool = False,
+        check_dir: bool = True,
+        authorizes: Optional[List[Coroutine]] = None,
+    ) -> None:
+        """Initialize Method with Authorizes Argument Parameter List of Dependencies"""
+
+        super().__init__(
+            directory=directory,
+            packages=packages,
+            html=html,
+            check_dir=check_dir,
+        )
+        self.authorizes = authorizes
 
 
 jwt_auth = AuthJWT(
