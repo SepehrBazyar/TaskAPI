@@ -18,5 +18,4 @@ from .security import (
     jwt_auth,
     pwd_context,
     oauth2_schema,
-    AuthStaticFiles,
 )

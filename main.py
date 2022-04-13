@@ -1,10 +1,11 @@
 import uvicorn
-from core import AuthStaticFiles, VersionFastAPI
+from fastapi.staticfiles import StaticFiles
+from core import VersionFastAPI
 from db import (
     connect_to_postgresql,
     close_postgresql_connection,
 )
-from api import latest, versions, dependencies
+from api import latest, versions
 
 
 app = VersionFastAPI()()
@@ -28,9 +29,9 @@ for version in versions:
 app.mount(
     name="media",
     path="/media",
-    app=AuthStaticFiles(
+    app=StaticFiles(
+        check_dir=False,
         directory="media",
-        authorizes=dependencies,
     ),
 )
 
