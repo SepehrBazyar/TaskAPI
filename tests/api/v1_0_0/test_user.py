@@ -9,6 +9,20 @@ URL_STR: str = VERSIONS.get("1.0.0") + "user/"
 
 
 class TestUserRoutes:
+    """Test Cases Class for Test APIs of User Entity Model Routes"""
+
+    async def test_login_successfull_user(
+        self,
+        client: AsyncClient,
+    ):
+        response = await client.post(url=URL_STR + "login/", data=FIRST_ADMIN)
+        content: Dict[str, Any] = response.json()
+
+        assert response.status_code == status.HTTP_200_OK
+        assert "token_type" in content
+        assert "access_token" in content
+        assert "refresh_token" in content
+
     async def test_list_user(
         self,
         client: AsyncClient,
