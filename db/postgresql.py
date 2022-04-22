@@ -5,8 +5,11 @@ from uvicorn.config import logger
 from core import settings
 
 
-database = Database(settings.POSTGRESQL_URL)
 metadata = MetaData()
+if not settings.TESTING:
+    database = Database(url=settings.POSTGRESQL_URL)
+else:
+    database = Database(url=settings.SQLITE_TEST_URL, force_rollback=True)
 
 
 class MainMeta(ModelMeta):
@@ -25,11 +28,11 @@ async def connect_to_postgresql():
     except Exception as e:
         logger.error(f"PostgreSQL Connection Failed {e}.")
     else:
-        logger.info("PostgreSQL Connected.")
+        logger.info(f"PostgreSQL Connected.")
 
 
 async def close_postgresql_connection():
     """Shutdown Event Handler for Disconnect to PostgreSQL Database"""
 
     await database.disconnect()
-    logger.info("PostgreSQL Closed.")
+    logger.info(f"PostgreSQL Closed.")
