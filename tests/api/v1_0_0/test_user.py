@@ -11,17 +11,81 @@ URL_STR: str = VERSIONS.get("1.0.0") + "user/"
 class TestUserRoutes:
     """Test Cases Class for Test APIs of User Entity Model Routes"""
 
+    async def test_login_failed_username_user(
+        self,
+        client: AsyncClient,
+    ):
+        response = await client.post(
+            url=URL_STR + "login/",
+            data={
+                "username": "wrongusername",
+                "password": FIRST_ADMIN.get("password"),
+            },
+        )
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+    
+    async def test_login_failed_password_user(
+        self,
+        client: AsyncClient,
+    ):
+        response = await client.post(
+            url=URL_STR + "login/",
+            data={
+                "username": FIRST_ADMIN.get("username"),
+                "password": "wrongpassword",
+            },
+        )
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
     async def test_login_successfull_user(
         self,
         client: AsyncClient,
     ):
         response = await client.post(url=URL_STR + "login/", data=FIRST_ADMIN)
-        content: Dict[str, Any] = response.json()
 
         assert response.status_code == status.HTTP_200_OK
+
+        content: Dict[str, Any] = response.json()
+
         assert "token_type" in content
         assert "access_token" in content
         assert "refresh_token" in content
+
+    async def test_refresh_failed_user(
+        self,
+        client: AsyncClient,
+    ):
+        response = await client.post(
+            url=URL_STR + "refresh/",
+            json={
+                "refresh": "fakerefreshtoken",
+            },
+        )
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    async def test_refresh_successfull_user(
+        self,
+        client: AsyncClient,
+    ):
+        response = await client.post(url=URL_STR + "login/", data=FIRST_ADMIN)
+        tokens: Dict[str, Any] = response.json()
+
+        response = await client.post(
+            url=URL_STR + "refresh/",
+            json={
+                "refresh": tokens.get("refresh_token"),
+            },
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+
+        content: Dict[str, Any] = response.json()
+
+        assert "token_type" in content
+        assert "access_token" in content
 
     async def test_list_user(
         self,
@@ -29,9 +93,10 @@ class TestUserRoutes:
         admin_token_headers: Dict[str, str],
     ):
         response = await client.get(URL_STR, headers=admin_token_headers)
-        content: Dict[str, Any] = response.json()
 
         assert response.status_code == status.HTTP_200_OK
+
+        content: Dict[str, Any] = response.json()
 
         assert content["count"] == 1
         assert content["next"] is None
